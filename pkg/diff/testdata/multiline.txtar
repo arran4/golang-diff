@@ -1,0 +1,15 @@
+-- documentation.md --
+Multiline test.
+-- input1.txt --
+foo
+bar
+baz
+-- input2.txt --
+foo
+barr
+baz
+-- expected.txt --
+foo == foo
+bar 1d barr
+baz == baz
+    ==
