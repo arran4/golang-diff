@@ -27,6 +27,9 @@ func FormatDiff(lines []DiffLine, opts *Options) string {
 		symbol := string(line.Type)
 		// Buffer width: space + 2 chars + space = 4 chars
 		buffer := fmt.Sprintf(" %-2s ", symbol)
+		if rightStr == "" {
+			buffer = strings.TrimRight(buffer, " ")
+		}
 
 		if opts.TermMode {
 			buffer = colorizeSymbol(buffer, line.Type)
