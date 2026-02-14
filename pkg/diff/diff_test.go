@@ -73,3 +73,50 @@ func TestCompareOutput(t *testing.T) {
 		t.Error("Output missing buffer symbol q for modified line. Output:\n" + output)
 	}
 }
+
+func TestCompareOptions(t *testing.T) {
+	a := "line1\nline2\nline3\nline4"
+	b := "line1\nline2\nline3 diff\nline4"
+
+	// Limit Lines
+	// Compare only first 2 lines. Should be identical.
+	// Output should NOT contain "line3 diff".
+	res := Compare(a, b, WithMaxLines(2))
+	if strings.Contains(res, "line3 diff") {
+		t.Errorf("Expected line3 diff to be ignored with MaxLines(2). Output:\n%s", res)
+	}
+	if !strings.Contains(res, "line2") {
+		t.Errorf("Expected line2 to be present. Output:\n%s", res)
+	}
+
+	// Line Selection
+	// Select line 3 only.
+	// Output should contain "line3 diff".
+	res = Compare(a, b, WithLineSelectionShortCode("3"))
+	if !strings.Contains(res, "line3 diff") {
+		t.Errorf("Expected line3 diff to be present with LineSelection(3). Output:\n%s", res)
+	}
+	if strings.Contains(res, "line1") {
+		t.Errorf("Expected line1 to be ignored with LineSelection(3). Output:\n%s", res)
+	}
+
+	// Width Selection (Columns)
+	// Select columns 1-4.
+	// "line1" -> "line"
+	// "line3 diff" -> "line"
+	// So they become identical.
+	res = Compare(a, b, WithWidthSelectionShortCode("1-4"))
+	if strings.Contains(res, "diff") { // "diff" word in content should be gone
+		t.Errorf("Expected 'diff' content to be stripped by WidthSelection(1-4). Output:\n%s", res)
+	}
+
+	// Limit Width
+	// Limit width to 5.
+	// "line3 diff" -> "line3" (len 5)
+	// "line3" -> "line3"
+	// So line3 matches line3.
+	res = Compare(a, b, WithMaxWidth(5))
+	if strings.Contains(res, " diff") {
+		t.Errorf("Expected ' diff' suffix to be stripped by MaxWidth(5). Output:\n%s", res)
+	}
+}

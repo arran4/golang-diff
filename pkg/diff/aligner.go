@@ -19,7 +19,7 @@ func AlignLines(a, b []string, opts *Options) []DiffLine {
 
 	var result []DiffLine
 	ai, bi := 0, 0
-	maxLookahead := opts.MaxLines
+	maxLookahead := opts.SearchDepth
 	if maxLookahead <= 0 {
 		maxLookahead = 1000
 	}
