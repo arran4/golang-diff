@@ -1,0 +1,11 @@
+-- documentation.md --
+TermMode test.
+-- input1.txt --
+a
+-- input2.txt --
+b
+-- options.json --
+{"TermMode": true}
+-- expected.txt --
+[31ma[0m[31m 1d [0m[32mb[0m
+ [32m == [0m

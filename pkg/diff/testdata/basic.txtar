@@ -1,0 +1,11 @@
+-- documentation.md --
+A simple test case comparing two different lines.
+-- input1.txt --
+a
+-- input2.txt --
+b
+-- expected.txt --
+a 1d b
+  ==
+-- options.json --
+{}
