@@ -13,11 +13,12 @@ import (
 // Compares two files side by side.
 //
 // Flags:
-//   file1: @1 File 1 path
-//   file2: @2 File 2 path
-//   term: --term -t Terminal mode (colors)
-//   interactive: --interactive -i Interactive mode
-//   maxLines: --max-lines -m (default: 1000) Max lines to search for alignment
+//
+//	file1: @1 File 1 path
+//	file2: @2 File 2 path
+//	term: --term -t Terminal mode (colors)
+//	interactive: --interactive -i Interactive mode
+//	maxLines: --max-lines -m (default: 1000) Max lines to search for alignment
 func CompareFiles(file1 string, file2 string, term bool, interactive bool, maxLines int) {
 	c1, err := os.ReadFile(file1)
 	if err != nil {

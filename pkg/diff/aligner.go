@@ -28,13 +28,13 @@ func AlignLines(a, b []string, opts *Options) []DiffLine {
 	// We need lookups for 'a' (given b[bi]) and 'b' (given a[ai])
 	// However, since we iterate forward, we can just compute on demand or precompute all.
 	// Precomputing is cleaner.
-	
+
 	aHashes := make(map[string][]int)
 	for i, line := range a {
 		h := CalculateHash(line)
 		aHashes[h] = append(aHashes[h], i)
 	}
-	
+
 	bHashes := make(map[string][]int)
 	for i, line := range b {
 		h := CalculateHash(line)
@@ -127,9 +127,9 @@ func ComputeDiffType(a, b string) (DiffType, []Operation) {
 	if a == b {
 		return DiffEqual, nil
 	}
-	
+
 	if a == "" && b == "" {
-	    return DiffEqual, nil
+		return DiffEqual, nil
 	}
 
 	ops := getEditScript(a, b)
@@ -228,7 +228,7 @@ func getEditScript(s1, s2 string) []Operation {
 			i--
 		}
 	}
-	
+
 	// Reverse ops
 	for k := 0; k < len(ops)/2; k++ {
 		ops[k], ops[len(ops)-1-k] = ops[len(ops)-1-k], ops[k]

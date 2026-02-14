@@ -1,0 +1,114 @@
+name: Go Pipeline
+
+on:
+  push:
+    branches:
+      - '**'
+    tags:
+      - 'v*'
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - name: Run Tests
+        run: go test ./...
+
+      - name: Run Vet
+        run: go vet ./...
+
+      - name: Run Lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
+
+  tidy:
+    name: Tidy and Regenerate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - name: Install Subc
+        run: go install github.com/arran4/go-subcommand/cmd/gosubc@latest
+
+      - name: Run Fmt
+        run: go fmt ./...
+
+      - name: Run Fix
+        run: go fix ./...
+
+      - name: Run Generate
+        run: gosubc generate ./cmd/diff
+
+      - name: Check for changes
+        id: check_changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Fail if changes (Push/PR)
+        if: github.event_name != 'workflow_dispatch' && steps.check_changes.outputs.changes == 'true'
+        run: |
+          echo "Pipeline failed because of uncommitted changes. Please run 'go fmt ./...', 'go fix ./...', and regenerate command line locally."
+          exit 1
+
+      - name: Create PR (Manual Dispatch)
+        if: github.event_name == 'workflow_dispatch' && steps.check_changes.outputs.changes == 'true'
+        uses: peter-evans/create-pull-request@v6
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update generated code and formatting"
+          title: "chore: update generated code and formatting"
+          body: "Automated PR to update generated code and formatting."
+          branch: "chore/update-generated-code"
+          base: ${{ github.ref_name }}
+
+  release:
+    name: Release
+    needs: [test, tidy]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.25'
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          distribution: goreleaser
+          version: latest
+          args: release --clean
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
