@@ -1,0 +1,16 @@
+Usage: diff compare [flags...] <file1> <file2>
+
+Compares two files side by side.
+
+Subcommands:
+    help         Print this help message
+    usage        Print this usage message
+
+Flags:
+    --term, -t            Terminal mode colors
+    --interactive, -i     Interactive mode
+    --max-lines, -m int   Max lines to search for alignment (default: 1000)
+
+Positional Arguments:
+    file1      File 1 path
+    file2      File 2 path
