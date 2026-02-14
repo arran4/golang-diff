@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"io/fs"
 	"path/filepath"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -41,10 +42,28 @@ func TestTxtar(t *testing.T) {
 				switch f.Name {
 				case "input1.txt":
 					input1 = f.Data
+				case "input1.txt.gostr":
+					s, err := strconv.Unquote(strings.TrimSpace(string(f.Data)))
+					if err != nil {
+						t.Fatalf("Failed to unquote input1.txt.gostr: %v", err)
+					}
+					input1 = []byte(s)
 				case "input2.txt":
 					input2 = f.Data
+				case "input2.txt.gostr":
+					s, err := strconv.Unquote(strings.TrimSpace(string(f.Data)))
+					if err != nil {
+						t.Fatalf("Failed to unquote input2.txt.gostr: %v", err)
+					}
+					input2 = []byte(s)
 				case "expected.txt":
 					expected = f.Data
+				case "expected.txt.gostr":
+					s, err := strconv.Unquote(strings.TrimSpace(string(f.Data)))
+					if err != nil {
+						t.Fatalf("Failed to unquote expected.txt.gostr: %v", err)
+					}
+					expected = []byte(s)
 				case "options.json":
 					optionsJSON = f.Data
 				case "documentation.md":
@@ -57,7 +76,7 @@ func TestTxtar(t *testing.T) {
 			}
 
 			if input1 == nil || input2 == nil || expected == nil {
-				t.Fatalf("Missing required files (input1.txt, input2.txt, expected.txt)")
+				t.Fatalf("Missing required files (input1.txt, input2.txt, expected.txt) or their .gostr variants")
 			}
 
 			var opts []interface{}
@@ -87,15 +106,9 @@ func TestTxtar(t *testing.T) {
 			got := Compare(input1, input2, opts...)
 			expectedStr := string(expected)
 
-			// Trim trailing newlines for easier comparison if desired, but strict is better.
-			// Let's stick to strict first.
-
 			if got != expectedStr {
 				t.Errorf("Mismatch for %s:\nExpected:\n%q\nGot:\n%q", path, expectedStr, got)
 				// Also print a diff of the output to help debugging
-				// We can use the Compare function itself to show the diff between expected and got!
-				// But we need to be careful not to recurse infinitely if Compare is broken.
-				// Assuming Compare works well enough for this:
 				t.Logf("Diff of Expected vs Got:\n%s", Compare(expectedStr, got))
 			}
 		})

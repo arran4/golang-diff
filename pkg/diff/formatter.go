@@ -27,6 +27,8 @@ func FormatDiff(lines []DiffLine, opts *Options) string {
 		symbol := string(line.Type)
 		// Buffer width: space + 2 chars + space = 4 chars
 		buffer := fmt.Sprintf(" %-2s ", symbol)
+		// If the right side is empty, we don't need the trailing space in the buffer.
+		// This makes the output look cleaner when there is no right-side content.
 		if rightStr == "" {
 			buffer = strings.TrimRight(buffer, " ")
 		}

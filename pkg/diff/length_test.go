@@ -83,42 +83,10 @@ func TestAlignLines_Lookahead(t *testing.T) {
 
 	a := []string{"a", "x", "y", "z", "b"}
 	b := []string{"a", "b"}
-	// "b" is at index 4 in a, index 1 in b.
-	// Difference is 3 lines.
-	// Lookahead 1 means it will only look 1 line ahead.
-	// So when at "x" (ai=1) and "b" (bi=1):
-	// It will look for "x" in b at [1, 2] -> not found.
-	// It will look for "b" in a at [1, 2] -> "x", "y" -> not found. "b" is at 4.
-	// So it should fail to align "b" with "b" immediately.
-	// It will treat "x" vs "b" as modification or separate lines.
-	// Then "y", "z" vs nothing... eventually "b" vs nothing?
 
+	// "b" is far away in 'a', so with lookahead 1, it should NOT find the match.
 	got := AlignLines(a, b, opts)
 
-	// If it aligned properly, we'd expect:
-	// a | a
-	// x |
-	// y |
-	// z |
-	// b | b
-	// Total 5 lines.
-
-	// If it failed to align because of lookahead:
-	// a | a (match)
-	// x | b (mod)
-	// y |   (del)
-	// z |   (del)
-	// b |   (del)
-	// Total 5 lines.
-
-	// Wait, if it treats "x" vs "b" as modification, it consumes both.
-	// ai=2 (y), bi=2 (end)
-	// y | (del)
-	// z | (del)
-	// b | (del)
-	// Total 1 (match) + 1 (mod) + 3 (del) = 5 lines.
-
-	// Let's verify what happens.
 	foundAlignment := false
 	for _, l := range got {
 		if l.Left == "b" && l.Right == "b" && l.Type == DiffEqual {
