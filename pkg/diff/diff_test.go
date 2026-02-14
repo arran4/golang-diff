@@ -38,13 +38,13 @@ func TestComputeDiffType(t *testing.T) {
 		expected DiffType
 	}{
 		{"abc", "abc", DiffEqual},
-		{"abc", "axc", Diff1},     // 1 continuous block (b->x)
-		{"abcde", "azcxe", Diff2}, // 2 blocks (b->z, d->x) separated by c
-		{"abc", "abd", Diff1},     // 1 block (c->d)
+		{"abc", "axc", Diff1},      // 1 continuous block (b->x)
+		{"abcde", "azcxe", Diff2},  // 2 blocks (b->z, d->x) separated by c
+		{"abc", "abd", Diff1},      // 1 block (c->d)
 		{"   ", " \t ", DiffSpace}, // Whitespace only
 		{"a b", "a  b", DiffSpace}, // Whitespace only (insertion of space)
-		{"a", "b", Diff1},         // 1 block
-		{"", "a", Diff1},          // 1 block (whole line)
+		{"a", "b", Diff1},          // 1 block
+		{"", "a", Diff1},           // 1 block (whole line)
 	}
 
 	for _, tt := range tests {

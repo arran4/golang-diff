@@ -16,13 +16,14 @@ var _ Cmd = (*Compare)(nil)
 
 type Compare struct {
 	*RootCmd
-	Flags       *flag.FlagSet
-	file1       string
-	file2       string
-	term        bool
-	interactive bool
-	maxLines    int
-	SubCommands map[string]Cmd
+	Flags         *flag.FlagSet
+	file1         string
+	file2         string
+	term          bool
+	interactive   bool
+	maxLines      int
+	SubCommands   map[string]Cmd
+	CommandAction func(c *Compare) error
 }
 
 type UsageDataCompare struct {
@@ -57,7 +58,7 @@ func (c *Compare) Execute(args []string) error {
 			remainingArgs = append(remainingArgs, args[i+1:]...)
 			break
 		}
-		if strings.HasPrefix(arg, "-") {
+		if strings.HasPrefix(arg, "-") && arg != "-" {
 			name := arg
 			value := ""
 			hasValue := false
@@ -136,7 +137,13 @@ func (c *Compare) Execute(args []string) error {
 		}
 	}
 
-	app.CompareFiles(c.file1, c.file2, c.term, c.interactive, c.maxLines)
+	if c.CommandAction != nil {
+		if err := c.CommandAction(c); err != nil {
+			return fmt.Errorf("compare failed: %w", err)
+		}
+	} else {
+		c.Usage()
+	}
 
 	return nil
 }
@@ -158,6 +165,12 @@ func (c *RootCmd) NewCompare() *Compare {
 	set.IntVar(&v.maxLines, "max-lines", 1000, "Max lines to search for alignment")
 	set.IntVar(&v.maxLines, "m", 1000, "Max lines to search for alignment")
 	set.Usage = v.Usage
+
+	v.CommandAction = func(c *Compare) error {
+
+		app.CompareFiles(c.file1, c.file2, c.term, c.interactive, c.maxLines)
+		return nil
+	}
 
 	v.SubCommands["help"] = &InternalCommand{
 		Exec: func(args []string) error {
