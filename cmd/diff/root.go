@@ -72,8 +72,6 @@ func (c *RootCmd) UsageRecursive() {
 	c.PrintDefaults()
 	fmt.Fprintln(os.Stderr, "  Commands:")
 	fmt.Fprintf(os.Stderr, "    %s\n", "compare")
-	fmt.Fprintf(os.Stderr, "    %s\n", "diff")
-	fmt.Fprintf(os.Stderr, "    %s\n", "patch")
 }
 
 func NewRoot(name, version, commit, date string) (*RootCmd, error) {
@@ -87,8 +85,6 @@ func NewRoot(name, version, commit, date string) (*RootCmd, error) {
 	c.FlagSet.Usage = c.Usage
 
 	c.Commands["compare"] = c.NewCompare()
-	c.Commands["diff"] = c.NewDiff()
-	c.Commands["patch"] = c.NewPatch()
 	c.Commands["help"] = &InternalCommand{
 		Exec: func(args []string) error {
 			for _, arg := range args {

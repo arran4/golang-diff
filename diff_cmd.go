@@ -59,6 +59,7 @@ func CompareFiles(file1 string, file2 string, term bool, interactive bool, maxLi
 // Compares two paths (files or directories) recursively.
 //
 // Flags:
+//
 //	path1: @1 Path 1
 //	path2: @2 Path 2
 //	term: --term -t Terminal mode (colors)
@@ -111,6 +112,7 @@ func DiffFiles(path1, path2 string, term bool, interactive bool, maxLines int, s
 // Applies a patch file to a target directory.
 //
 // Flags:
+//
 //	patchFile: @1 Patch file path
 //	targetDir: @2 Target directory path
 func PatchFiles(patchFile string, targetDir string) {

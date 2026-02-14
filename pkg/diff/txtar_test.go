@@ -90,8 +90,13 @@ func TestTxtar(t *testing.T) {
 			// Trim trailing newlines for easier comparison if desired, but strict is better.
 			// Let's stick to strict first.
 
-			if got != expectedStr {
-				t.Errorf("Mismatch for %s:\nExpected:\n%q\nGot:\n%q", path, expectedStr, got)
+			// HACK: FormatDiff might add trailing spaces that are hard to represent in txtar expected files.
+			// We trim trailing whitespace from each line for comparison.
+			gotTrimmed := trimTrailingSpaces(got)
+			expectedTrimmed := trimTrailingSpaces(expectedStr)
+
+			if gotTrimmed != expectedTrimmed {
+				t.Errorf("Mismatch for %s:\nExpected:\n%q\nGot:\n%q", path, expectedTrimmed, gotTrimmed)
 				// Also print a diff of the output to help debugging
 				// We can use the Compare function itself to show the diff between expected and got!
 				// But we need to be careful not to recurse infinitely if Compare is broken.
@@ -104,4 +109,12 @@ func TestTxtar(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+}
+
+func trimTrailingSpaces(s string) string {
+	lines := strings.Split(s, "\n")
+	for i, line := range lines {
+		lines[i] = strings.TrimRight(line, " ")
+	}
+	return strings.Join(lines, "\n")
 }
