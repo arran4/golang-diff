@@ -1,9 +1,9 @@
 package testutil_test
 
 import (
-	"testing"
 	"github.com/arran4/golang-diff/pkg/diff"
 	"github.com/arran4/golang-diff/pkg/diff/testutil"
+	"testing"
 )
 
 func TestFailIfMismatch(t *testing.T) {
