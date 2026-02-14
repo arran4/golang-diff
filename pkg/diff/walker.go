@@ -62,24 +62,6 @@ func walk(relPath, root1, root2 string, opts *Options) (string, error) {
 		// If relPath is empty, maybe we shouldn't filter? Or check "."?
 		// Let's assume FileFilter handles empty string or we check the name.
 		checkPath := relPath
-		if checkPath == "" {
-			// For root files, maybe use the file names themselves?
-			// But path1 and path2 are different.
-			// Let's just use relPath if not empty, otherwise skip filter for root?
-			// Or better: construct a name.
-			// If Diff("a", "b"), checkPath is "".
-			// If we filter, we might want to skip "a" or "b"?
-			// But Diff was explicitly called on them.
-			// So probably only filter during recursion?
-			// But if Diff("dir1", "dir2") -> walk("", ...) -> isDir=true.
-			// Then recurse -> walk("file", ...) -> checkPath="file".
-			// So filter works fine for contents.
-			// What about Diff("file1", "file2")?
-			// isDir=false. checkPath="".
-			// If filter is "*.go", and file1 is "main.go", checkPath="" fails?
-			// Maybe we should just let it pass if explicit?
-			// Yes, usually explicit args are processed.
-		}
 
 		if checkPath != "" && opts.FileFilter != nil && !opts.FileFilter(checkPath) {
 			return "", nil

@@ -42,7 +42,11 @@ new file
 	if err != nil {
 		t.Fatal(err)
 	}
-	defer os.Chdir(cwd)
+	defer func() {
+		if err := os.Chdir(cwd); err != nil {
+			t.Errorf("Failed to change directory back to %s: %v", cwd, err)
+		}
+	}()
 	if err := os.Chdir(tempDir); err != nil {
 		t.Fatal(err)
 	}
@@ -70,7 +74,9 @@ new file
 
 	// 2. Test Patch
 	// Modify dir1/file2.txt to junk
-	os.WriteFile(filepath.Join("dir1", "file2.txt"), []byte("junk"), 0644)
+	if err := os.WriteFile(filepath.Join("dir1", "file2.txt"), []byte("junk"), 0644); err != nil {
+		t.Fatalf("Failed to write file: %v", err)
+	}
 
 	// Apply patch to "." (current dir)
 	if err := Apply(output, "."); err != nil {
@@ -117,8 +123,12 @@ package main
 	tempDir := t.TempDir()
 	for _, f := range ar.Files {
 		path := filepath.Join(tempDir, f.Name)
-		os.MkdirAll(filepath.Dir(path), 0755)
-		os.WriteFile(path, f.Data, 0644)
+		if err := os.MkdirAll(filepath.Dir(path), 0755); err != nil {
+			t.Fatalf("Failed to create directory: %v", err)
+		}
+		if err := os.WriteFile(path, f.Data, 0644); err != nil {
+			t.Fatalf("Failed to write file: %v", err)
+		}
 	}
 
 	dir1 := filepath.Join(tempDir, "dir1")
