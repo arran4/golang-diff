@@ -5,11 +5,17 @@ type Interactive bool
 type MaxLines int
 type LineUpFunc func(a, b []string, opts *Options) []DiffLine
 
+type TestingT interface {
+	Helper()
+	Errorf(format string, args ...interface{})
+}
+
 type Options struct {
 	TermMode    bool
 	Interactive bool
 	MaxLines    int
 	LineUpFunc  LineUpFunc
+	TestingT    TestingT
 }
 
 type DiffType string
@@ -63,6 +69,8 @@ func NewOptions(args ...interface{}) *Options {
 			opts.MaxLines = v
 		case LineUpFunc:
 			opts.LineUpFunc = v
+		case TestingT:
+			opts.TestingT = v
 		}
 	}
 	return opts
