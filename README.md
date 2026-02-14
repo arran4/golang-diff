@@ -48,6 +48,40 @@ Compare two files interactively:
 diff compare file1.txt file2.txt -i
 ```
 
+## Output Guide
+
+The output displays the two files side-by-side. The center column contains a symbol indicating the type of difference between the lines.
+
+### Symbols
+
+| Symbol | Meaning | Color (Term Mode) |
+| :--- | :--- | :--- |
+| `==` | Lines are identical | Green |
+| `1d` | One continuous difference block | Red |
+| `2d` | Two difference blocks | Red |
+| `d` | Multiple difference blocks | Red |
+| `w` | Whitespace difference only | Yellow |
+| `q` | Mixed character and whitespace difference | Red |
+| `$` | End of Line (EOL) difference (e.g., CRLF vs LF) | Yellow |
+
+### Colors
+
+When terminal mode is enabled (`-t`):
+- **Green**: Added or identical content.
+- **Red**: Deleted or modified content.
+- **Yellow**: Whitespace or EOL differences.
+
+### Example Output
+
+```text
+Hello world    ==  Hello world
+This is a test 1d  This is a test case
+```
+
+In this example:
+- The first line is identical (`==`).
+- The second line has one difference (`1d`): " case" is added on the right side.
+
 ## Usage (Library)
 
 You can also use `golang-diff` as a library in your Go projects.
