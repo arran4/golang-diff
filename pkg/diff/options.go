@@ -86,11 +86,7 @@ func NewOptions(args ...interface{}) *Options {
 			opts.LimitWidth = int(v)
 		case LineSelection:
 			opts.LinesSelection = v
-		case WithLineSelectionShortCode:
-			opts.LinesSelection = v
 		case WidthSelection:
-			opts.WidthSelection = v
-		case WithWidthSelectionShortCode:
 			opts.WidthSelection = v
 		case LineUpFunc:
 			opts.LineUpFunc = v

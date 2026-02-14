@@ -112,7 +112,7 @@ func (c *Compare) Execute(args []string) error {
 				}
 				c.searchDepth = iv
 
-			case "maxLines", "max-lines", "m":
+			case "limitLines", "max-lines":
 				if !hasValue {
 					if i+1 < len(args) {
 						value = args[i+1]
@@ -127,7 +127,7 @@ func (c *Compare) Execute(args []string) error {
 				}
 				c.limitLines = iv
 
-			case "maxWidth", "max-width":
+			case "limitWidth", "max-width":
 				if !hasValue {
 					if i+1 < len(args) {
 						value = args[i+1]
@@ -142,7 +142,7 @@ func (c *Compare) Execute(args []string) error {
 				}
 				c.limitWidth = iv
 
-			case "lines", "l":
+			case "linesSelection", "lines", "l":
 				if !hasValue {
 					if i+1 < len(args) {
 						value = args[i+1]
@@ -153,7 +153,7 @@ func (c *Compare) Execute(args []string) error {
 				}
 				c.linesSelection = value
 
-			case "width", "w":
+			case "widthSelection", "width", "w":
 				if !hasValue {
 					if i+1 < len(args) {
 						value = args[i+1]
@@ -163,7 +163,6 @@ func (c *Compare) Execute(args []string) error {
 					}
 				}
 				c.widthSelection = value
-
 			case "help", "h":
 				c.Usage()
 				return nil
@@ -223,7 +222,6 @@ func (c *RootCmd) NewCompare() *Compare {
 	set.IntVar(&v.searchDepth, "s", 1000, "Max lines to search for alignment")
 
 	set.IntVar(&v.limitLines, "max-lines", 0, "Max lines to compare")
-	set.IntVar(&v.limitLines, "m", 0, "Max lines to compare")
 
 	set.IntVar(&v.limitWidth, "max-width", 0, "Max width")
 
@@ -232,7 +230,6 @@ func (c *RootCmd) NewCompare() *Compare {
 
 	set.StringVar(&v.widthSelection, "width", "", "Width selection")
 	set.StringVar(&v.widthSelection, "w", "", "Width selection")
-
 	set.Usage = v.Usage
 
 	v.CommandAction = func(c *Compare) error {
