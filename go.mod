@@ -1,6 +1,6 @@
 module github.com/arran4/golang-diff
 
-go 1.25.3
+go 1.24.0
 
 require (
 	github.com/arran4/go-subcommand v0.0.14 // indirect
