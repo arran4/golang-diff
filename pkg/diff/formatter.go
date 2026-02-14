@@ -80,7 +80,7 @@ func colorize(s, code string) string {
 }
 
 func colorizeSymbol(s string, t DiffType) string {
-	code := "0"
+	var code string
 	switch t {
 	case DiffEqual:
 		code = "32" // Green
