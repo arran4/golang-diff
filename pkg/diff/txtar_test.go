@@ -15,6 +15,18 @@ import (
 //go:embed testdata
 var testData embed.FS
 
+type decoder func(string) ([]byte, error)
+
+var decoders = map[string]decoder{
+	".gostr": func(s string) ([]byte, error) {
+		s, err := strconv.Unquote(strings.TrimSpace(s))
+		if err != nil {
+			return nil, err
+		}
+		return []byte(s), nil
+	},
+}
+
 func TestTxtar(t *testing.T) {
 	err := fs.WalkDir(testData, "testdata", func(path string, d fs.DirEntry, err error) error {
 		if err != nil {
@@ -39,35 +51,49 @@ func TestTxtar(t *testing.T) {
 			var doc []byte
 
 			for _, f := range archive.Files {
-				switch f.Name {
+				name := f.Name
+				ext := filepath.Ext(name)
+				base := strings.TrimSuffix(name, ext)
+
+				// Handle decoding if an extension matches a registered decoder
+				var data []byte
+				if decode, ok := decoders[ext]; ok {
+					var err error
+					data, err = decode(string(f.Data))
+					if err != nil {
+						t.Fatalf("Failed to decode %s: %v", name, err)
+					}
+					// Update base name to remove the decoded extension (e.g. input1.txt.gostr -> input1.txt)
+					// But wait, base is input1.txt if ext is .gostr
+					// Then we might have another extension .txt
+				} else {
+					data = f.Data
+					// If no decoder, base is the name without the last extension.
+					// e.g. input1.txt -> base input1
+					// e.g. input1.txt.gostr -> ext .gostr -> base input1.txt
+					// So if we decoded, we want to match against "input1.txt" etc.
+					// If we didn't decode, we want to match against "input1.txt" etc.
+				}
+
+				// Re-normalize name for matching
+				// If decoded, name effectively becomes the base name (e.g. input1.txt)
+				// If not decoded, use original name.
+				matchName := name
+				if _, ok := decoders[ext]; ok {
+					matchName = base
+				}
+
+				switch matchName {
 				case "input1.txt":
-					input1 = f.Data
-				case "input1.txt.gostr":
-					s, err := strconv.Unquote(strings.TrimSpace(string(f.Data)))
-					if err != nil {
-						t.Fatalf("Failed to unquote input1.txt.gostr: %v", err)
-					}
-					input1 = []byte(s)
+					input1 = data
 				case "input2.txt":
-					input2 = f.Data
-				case "input2.txt.gostr":
-					s, err := strconv.Unquote(strings.TrimSpace(string(f.Data)))
-					if err != nil {
-						t.Fatalf("Failed to unquote input2.txt.gostr: %v", err)
-					}
-					input2 = []byte(s)
+					input2 = data
 				case "expected.txt":
-					expected = f.Data
-				case "expected.txt.gostr":
-					s, err := strconv.Unquote(strings.TrimSpace(string(f.Data)))
-					if err != nil {
-						t.Fatalf("Failed to unquote expected.txt.gostr: %v", err)
-					}
-					expected = []byte(s)
+					expected = data
 				case "options.json":
-					optionsJSON = f.Data
+					optionsJSON = data
 				case "documentation.md":
-					doc = f.Data
+					doc = data
 				}
 			}
 
@@ -76,7 +102,7 @@ func TestTxtar(t *testing.T) {
 			}
 
 			if input1 == nil || input2 == nil || expected == nil {
-				t.Fatalf("Missing required files (input1.txt, input2.txt, expected.txt) or their .gostr variants")
+				t.Fatalf("Missing required files (input1.txt, input2.txt, expected.txt) or their decoded variants")
 			}
 
 			var opts []interface{}
@@ -108,7 +134,6 @@ func TestTxtar(t *testing.T) {
 
 			if got != expectedStr {
 				t.Errorf("Mismatch for %s:\nExpected:\n%q\nGot:\n%q", path, expectedStr, got)
-				// Also print a diff of the output to help debugging
 				t.Logf("Diff of Expected vs Got:\n%s", Compare(expectedStr, got))
 			}
 		})
