@@ -55,7 +55,7 @@ func CompareFiles(file1 string, file2 string, term bool, interactive bool, maxLi
 	}
 }
 
-// DiffFiles is a subcommand 'diff diff'
+// DiffFiles is a subcommand 'godiff diff'
 // Compares two paths (files or directories) recursively.
 //
 // Flags:
