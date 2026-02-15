@@ -93,15 +93,25 @@ func processBlock(path string, lines []string) error {
 	// 1. Determine separator index (maxLeft)
 	separators := map[string]bool{
 		" == ": true, " 1d ": true, " 2d ": true, " d  ": true, " w  ": true, " q  ": true, " $  ": true,
+		// Trimmed versions (when right side is empty)
+		" ==": true, " 1d": true, " 2d": true, " d": true, " w": true, " q": true, " $": true,
 	}
 
 	// Find consistent separator index
 	// Candidates from first line
 	firstLine := lines[0]
 	var candidates []int
-	for i := 0; i <= len(firstLine)-4; i++ {
-		sub := firstLine[i : i+4]
-		if separators[sub] {
+	// Check for separators of length 4, 3, or 2
+	for i := 0; i <= len(firstLine)-2; i++ {
+		matched := false
+		if i+4 <= len(firstLine) && separators[firstLine[i:i+4]] {
+			matched = true
+		} else if i+3 <= len(firstLine) && separators[firstLine[i:i+3]] {
+			matched = true
+		} else if i+2 <= len(firstLine) && separators[firstLine[i:i+2]] {
+			matched = true
+		}
+		if matched {
 			candidates = append(candidates, i)
 		}
 	}
@@ -113,12 +123,16 @@ func processBlock(path string, lines []string) error {
 			if len(line) == 0 {
 				continue
 			}
-			if len(line) < idx+4 {
-				isValid = false
-				break
+			// Check if line matches any separator at idx
+			matched := false
+			if len(line) >= idx+4 && separators[line[idx:idx+4]] {
+				matched = true
+			} else if len(line) >= idx+3 && separators[line[idx:idx+3]] {
+				matched = true
+			} else if len(line) >= idx+2 && separators[line[idx:idx+2]] {
+				matched = true
 			}
-			sub := line[idx : idx+4]
-			if !separators[sub] {
+			if !matched {
 				isValid = false
 				break
 			}
@@ -141,12 +155,26 @@ func processBlock(path string, lines []string) error {
 			continue
 		}
 
-		sub := line[validIdx : validIdx+4]
+		sepLen := 0
+		if len(line) >= validIdx+4 && separators[line[validIdx:validIdx+4]] {
+			sepLen = 4
+		} else if len(line) >= validIdx+3 && separators[line[validIdx:validIdx+3]] {
+			sepLen = 3
+		} else if len(line) >= validIdx+2 && separators[line[validIdx:validIdx+2]] {
+			sepLen = 2
+		}
+
+		// Should be safe given validation
+		if sepLen == 0 {
+			continue
+		}
+
+		sub := line[validIdx : validIdx+sepLen]
 		sym := strings.TrimSpace(sub)
 
 		var right string
-		if len(line) >= validIdx+4 {
-			right = line[validIdx+4:]
+		if len(line) >= validIdx+sepLen {
+			right = line[validIdx+sepLen:]
 		} else {
 			right = ""
 		}
