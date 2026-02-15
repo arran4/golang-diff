@@ -4,6 +4,7 @@ type TermMode bool
 type Interactive bool
 type MaxLines int
 type LineUpFunc func(a, b []string, opts *Options) []DiffLine
+type FileFilter func(path string) bool
 
 type TestingT interface {
 	Helper()
@@ -16,6 +17,7 @@ type Options struct {
 	MaxLines    int
 	LineUpFunc  LineUpFunc
 	TestingT    TestingT
+	FileFilter  FileFilter
 }
 
 type DiffType string
@@ -71,6 +73,8 @@ func NewOptions(args ...interface{}) *Options {
 			opts.LineUpFunc = v
 		case TestingT:
 			opts.TestingT = v
+		case FileFilter:
+			opts.FileFilter = v
 		}
 	}
 	return opts
