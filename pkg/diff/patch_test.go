@@ -14,21 +14,8 @@ func TestApplyExtended(t *testing.T) {
 1.2.3.4 3d 1x2x3x4
         ==
 `
-	// 3d is recognized as a separator
-	// Left side: 1.2.3.4
-	// Right side: 1x2x3x4
-
-	// Apply creates file2.txt?
-	// Apply applies patch to targetDir.
-	// The patch header says Diff "file1.txt" "file2.txt".
-	// Apply logic:
-	// p1 = file1.txt. target = join(targetDir, p1).
-	// So it writes to file1.txt?
-	// Wait, Apply writes to p1? Or p2?
-	// Let's check patch.go logic.
-	// "Determine target file path... currentFile = filepath.Join(targetDir, p1)"
-	// So it modifies p1 (file1.txt).
-
+	// The "3d" separator should be recognized and parsed correctly.
+	// Apply modifies "file1.txt" (the first path in the Diff header) relative to tempDir.
 	err := Apply(patch, tempDir)
 	if err != nil {
 		t.Fatalf("Apply failed: %v", err)
