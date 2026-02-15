@@ -24,10 +24,6 @@ func Compare(a, b interface{}, options ...interface{}) string {
 	return output
 }
 
-func Diff(a, b interface{}, options ...interface{}) string {
-	return Compare(a, b, options...)
-}
-
 func toStringSlice(v interface{}) []string {
 	switch t := v.(type) {
 	case string:

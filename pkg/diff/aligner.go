@@ -187,8 +187,11 @@ func ComputeDiffType(a, b string) (DiffType, []Operation) {
 	if blocks == 2 {
 		return Diff2, ops
 	}
+	if blocks < 10 {
+		return DiffType(fmt.Sprintf("%dd", blocks)), ops
+	}
 
-	return DiffChar, ops
+	return "+d", ops
 }
 
 func getEditScript(s1, s2 string) []Operation {

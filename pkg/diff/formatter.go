@@ -35,8 +35,6 @@ func FormatDiff(lines []DiffLine, opts *Options) string {
 
 		if opts.TermMode {
 			buffer = colorizeSymbol(buffer, line.Type)
-		} else if len(rightStr) == 0 {
-			buffer = strings.TrimRight(buffer, " ")
 		}
 
 		sb.WriteString(leftStr)

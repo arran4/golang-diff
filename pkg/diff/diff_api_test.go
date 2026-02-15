@@ -26,10 +26,10 @@ func TestDiffFailOnMismatch(t *testing.T) {
 	b := "b"
 
 	// Should fail
-	diff.Diff(a, b, mock)
+	diff.Compare(a, b, mock)
 
 	if !mock.failed {
-		t.Error("Expected Diff to fail with mismatching inputs")
+		t.Error("Expected Compare to fail with mismatching inputs")
 	}
 	if mock.errorMsg == "" {
 		t.Error("Expected error message to be set")
@@ -43,10 +43,10 @@ func TestDiffPassOnMatch(t *testing.T) {
 	b := "a"
 
 	// Should pass
-	diff.Diff(a, b, mock)
+	diff.Compare(a, b, mock)
 
 	if mock.failed {
-		t.Error("Expected Diff to pass with matching inputs")
+		t.Error("Expected Compare to pass with matching inputs")
 	}
 }
 
@@ -54,9 +54,9 @@ func TestDiffPassOnEqual(t *testing.T) {
 	mock := &mockTestingT{}
 	a := []string{"a", "b"}
 	b := []string{"a", "b"}
-	diff.Diff(a, b, mock)
+	diff.Compare(a, b, mock)
 	if mock.failed {
-		t.Error("Expected Diff to pass with equal inputs")
+		t.Error("Expected Compare to pass with equal inputs")
 	}
 }
 
@@ -65,7 +65,7 @@ func TestDiffFormatting(t *testing.T) {
 	// Ensure we don't crash or behave weirdly if formatting string is passed
 	a := "a"
 	b := "b%s"
-	diff.Diff(a, b, mock)
+	diff.Compare(a, b, mock)
 	if !mock.failed {
 		t.Error("Should fail")
 	}

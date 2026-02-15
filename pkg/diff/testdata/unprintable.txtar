@@ -1,0 +1,10 @@
+-- documentation.md --
+Test unprintable characters using .gostr decoding.
+-- input1.txt.gostr --
+"a\x00b"
+-- input2.txt.gostr --
+"a\x01b"
+-- expected.txt.gostr --
+"a\x00b 1d a\x01b\n"
+-- options.json --
+{}
