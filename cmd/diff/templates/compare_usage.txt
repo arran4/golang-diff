@@ -7,9 +7,13 @@ Subcommands:
     usage        Print this usage message
 
 Flags:
-    --term, -t            Terminal mode colors
-    --interactive, -i     Interactive mode
-    --max-lines, -m int   Max lines to search for alignment (default: 1000)
+    --term, -t               Terminal mode colors
+    --interactive, -i        Interactive mode
+    --search-depth, -s int   Max lines to search for alignment (default: 1000)
+    --max-lines int          Max lines to compare (default: 0)
+    --max-width int          Max width (default: 0)
+    --lines, -l string       Line selection
+    --width, -w string       Width selection
 
 Positional Arguments:
     file1      File 1 path

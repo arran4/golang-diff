@@ -2,14 +2,31 @@ package diff
 
 type TermMode bool
 type Interactive bool
-type MaxLines int
+type SearchDepth int
+type WithSearchDepth int
+type WithMaxLines int
+type WithMaxWidth int
+
+type LineSelection interface {
+	Compile() (*ShortCodeLineSelectionLang, error)
+}
+type WidthSelection interface {
+	Compile() (*ShortCodeWidthSelectionLang, error)
+}
+type WithLineSelectionShortCode string
+type WithWidthSelectionShortCode string
+
 type LineUpFunc func(a, b []string, opts *Options) []DiffLine
 
 type Options struct {
-	TermMode    bool
-	Interactive bool
-	MaxLines    int
-	LineUpFunc  LineUpFunc
+	TermMode       bool
+	Interactive    bool
+	SearchDepth    int
+	LimitLines     int
+	LimitWidth     int
+	LinesSelection LineSelection
+	WidthSelection WidthSelection
+	LineUpFunc     LineUpFunc
 }
 
 type DiffType string
@@ -46,7 +63,7 @@ type DiffLine struct {
 
 func NewOptions(args ...interface{}) *Options {
 	opts := &Options{
-		MaxLines: 1000,
+		SearchDepth: 1000,
 	}
 	for _, arg := range args {
 		switch v := arg.(type) {
@@ -57,10 +74,20 @@ func NewOptions(args ...interface{}) *Options {
 		case bool:
 			// Heuristic: if boolean true is passed, maybe default to TermMode?
 			// But type switch is safer.
-		case MaxLines:
-			opts.MaxLines = int(v)
+		case SearchDepth:
+			opts.SearchDepth = int(v)
+		case WithSearchDepth:
+			opts.SearchDepth = int(v)
 		case int:
-			opts.MaxLines = v
+			opts.SearchDepth = v
+		case WithMaxLines:
+			opts.LimitLines = int(v)
+		case WithMaxWidth:
+			opts.LimitWidth = int(v)
+		case LineSelection:
+			opts.LinesSelection = v
+		case WidthSelection:
+			opts.WidthSelection = v
 		case LineUpFunc:
 			opts.LineUpFunc = v
 		}

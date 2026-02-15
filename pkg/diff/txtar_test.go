@@ -108,6 +108,26 @@ func TestTxtar(t *testing.T) {
 						if f, ok := v.(float64); ok {
 							opts = append(opts, int(f))
 						}
+					case "SearchDepth":
+						if f, ok := v.(float64); ok {
+							opts = append(opts, SearchDepth(int(f)))
+						}
+					case "LimitLines":
+						if f, ok := v.(float64); ok {
+							opts = append(opts, WithMaxLines(int(f)))
+						}
+					case "LimitWidth":
+						if f, ok := v.(float64); ok {
+							opts = append(opts, WithMaxWidth(int(f)))
+						}
+					case "LinesSelection":
+						if s, ok := v.(string); ok {
+							opts = append(opts, WithLineSelectionShortCode(s))
+						}
+					case "WidthSelection":
+						if s, ok := v.(string); ok {
+							opts = append(opts, WithWidthSelectionShortCode(s))
+						}
 					case "TermMode":
 						if b, ok := v.(bool); ok {
 							opts = append(opts, TermMode(b))
