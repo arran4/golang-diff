@@ -40,28 +40,27 @@ func TestDirTxtar(t *testing.T) {
 			}
 			ar := txtar.Parse(content)
 
-			// Extract tests.json
+			// Extract test-config.json
 			var tests []DirTest
 			var testsData []byte
 			for _, f := range ar.Files {
-				if f.Name == "tests.json" {
+				if f.Name == "test-config.json" {
 					testsData = f.Data
 					break
 				}
 			}
 			if len(testsData) > 0 {
 				if err := json.Unmarshal(testsData, &tests); err != nil {
-					t.Fatalf("Failed to parse tests.json: %v", err)
+					t.Fatalf("Failed to parse test-config.json: %v", err)
 				}
 			} else {
-				t.Logf("No tests.json found in %s, skipping", path)
-				return
+				t.Fatalf("No test-config.json found in %s", path)
 			}
 
 			// Setup Temp Dir with file contents
 			tempDir := t.TempDir()
 			for _, f := range ar.Files {
-				if f.Name == "tests.json" || f.Name == "expected.diff" {
+				if f.Name == "test-config.json" || f.Name == "expected.diff" {
 					continue
 				}
 				p := filepath.Join(tempDir, f.Name)
