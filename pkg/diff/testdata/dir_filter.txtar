@@ -1,0 +1,23 @@
+-- test-config.json --
+[
+  {
+    "name": "filter_go",
+    "type": "diff",
+    "dir1": "dir1",
+    "dir2": "dir2",
+    "filter": "*.go",
+    "expected": "expected.diff"
+  }
+]
+-- dir1/file.go --
+package main
+-- dir1/readme.md --
+# Readme
+-- dir2/file.go --
+package main
+-- dir2/readme.md --
+# Readme modified
+-- expected.diff --
+Diff "dir1/file.go" "dir2/file.go"
+package main == package main
+             ==

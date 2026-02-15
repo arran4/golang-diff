@@ -1,0 +1,30 @@
+-- test-config.json --
+[
+  {
+    "name": "basic",
+    "type": "diff+patch",
+    "dir1": "dir1",
+    "dir2": "dir2",
+    "expected": "expected.diff"
+  }
+]
+-- dir1/file1.txt --
+content1
+-- dir1/file2.txt --
+content2
+-- dir2/file1.txt --
+content1
+-- dir2/file2.txt --
+content2 modified
+-- dir2/file3.txt --
+new file
+-- expected.diff --
+Diff "dir1/file1.txt" "dir2/file1.txt"
+content1 == content1
+         ==
+Diff "dir1/file2.txt" "dir2/file2.txt"
+content2 q  content2 modified
+         ==
+Diff "dir1/file3.txt" "dir2/file3.txt"
+ q  new file
+ ==
