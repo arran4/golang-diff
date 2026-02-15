@@ -63,21 +63,12 @@ func TestTxtar(t *testing.T) {
 					if err != nil {
 						t.Fatalf("Failed to decode %s: %v", name, err)
 					}
-					// Update base name to remove the decoded extension (e.g. input1.txt.gostr -> input1.txt)
-					// But wait, base is input1.txt if ext is .gostr
-					// Then we might have another extension .txt
 				} else {
 					data = f.Data
-					// If no decoder, base is the name without the last extension.
-					// e.g. input1.txt -> base input1
-					// e.g. input1.txt.gostr -> ext .gostr -> base input1.txt
-					// So if we decoded, we want to match against "input1.txt" etc.
-					// If we didn't decode, we want to match against "input1.txt" etc.
 				}
 
-				// Re-normalize name for matching
-				// If decoded, name effectively becomes the base name (e.g. input1.txt)
-				// If not decoded, use original name.
+				// If we decoded the file (e.g., input1.txt.gostr), we match against the base name (input1.txt).
+				// Otherwise, we use the original filename.
 				matchName := name
 				if _, ok := decoders[ext]; ok {
 					matchName = base
