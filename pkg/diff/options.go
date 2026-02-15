@@ -26,7 +26,7 @@ const (
 	DiffEqual DiffType = "=="
 	Diff1     DiffType = "1d" // One continuous difference
 	Diff2     DiffType = "2d" // Two differences
-	DiffChar  DiffType = "d"  // Generic difference (3+)
+	DiffChar  DiffType = "d"  // Generic difference (Legacy, used for 3+)
 	DiffSpace DiffType = "w"  // Whitespace only
 	DiffMixed DiffType = "q"  // Character and whitespace
 	DiffEOL   DiffType = "$"  // EOL difference

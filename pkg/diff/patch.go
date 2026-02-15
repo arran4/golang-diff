@@ -92,9 +92,9 @@ func processBlock(path string, lines []string) error {
 
 	// 1. Determine separator index (maxLeft)
 	separators := map[string]bool{
-		" == ": true, " 1d ": true, " 2d ": true, " d  ": true, " w  ": true, " q  ": true, " $  ": true,
+		" == ": true, " 1d ": true, " 2d ": true, " 3d ": true, " 4d ": true, " 5d ": true, " 6d ": true, " 7d ": true, " 8d ": true, " 9d ": true, " +d ": true, " d  ": true, " w  ": true, " q  ": true, " $  ": true,
 		// Trimmed versions (when right side is empty)
-		" ==": true, " 1d": true, " 2d": true, " d": true, " w": true, " q": true, " $": true,
+		" ==": true, " 1d": true, " 2d": true, " 3d": true, " 4d": true, " 5d": true, " 6d": true, " 7d": true, " 8d": true, " 9d": true, " +d": true, " d": true, " w": true, " q": true, " $": true,
 	}
 
 	// Find consistent separator index

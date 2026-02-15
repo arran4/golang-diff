@@ -45,6 +45,8 @@ func TestComputeDiffType(t *testing.T) {
 		{"a b", "a  b", DiffSpace}, // Whitespace only (insertion of space)
 		{"a", "b", Diff1},          // 1 block
 		{"", "a", Diff1},           // 1 block (whole line)
+		{"1.2.3.4", "1x2x3x4", "3d"},
+		{"1.2.3.4.5.6.7.8.9.10.11", "1x2x3x4x5x6x7x8x9x10x11", "+d"},
 	}
 
 	for _, tt := range tests {
