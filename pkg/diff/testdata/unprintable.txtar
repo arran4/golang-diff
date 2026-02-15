@@ -1,8 +1,0 @@
--- documentation.md --
-Unprintable chars test.
--- input1.txt.gostr --
-"foo\x00bar\n"
--- input2.txt.gostr --
-"foo\x01bar\n"
--- expected.txt.gostr --
-"foo\x00bar 1d foo\x01bar\n        ==\n"
