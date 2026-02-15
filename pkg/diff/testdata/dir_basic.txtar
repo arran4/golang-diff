@@ -2,10 +2,10 @@
 [
   {
     "name": "basic",
+    "type": "diff+patch",
     "dir1": "dir1",
     "dir2": "dir2",
-    "expected": "expected.diff",
-    "patch": true
+    "expected": "expected.diff"
   }
 ]
 -- dir1/file1.txt --

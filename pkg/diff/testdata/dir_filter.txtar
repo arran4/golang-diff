@@ -2,6 +2,7 @@
 [
   {
     "name": "filter_go",
+    "type": "diff",
     "dir1": "dir1",
     "dir2": "dir2",
     "filter": "*.go",

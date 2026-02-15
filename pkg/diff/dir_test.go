@@ -13,11 +13,11 @@ import (
 
 type DirTest struct {
 	Name     string `json:"name"`
+	Type     string `json:"type"` // "diff", "patch" (implies diff)
 	Dir1     string `json:"dir1"`
 	Dir2     string `json:"dir2"`
 	Filter   string `json:"filter"`
 	Expected string `json:"expected"`
-	Patch    bool   `json:"patch"`
 }
 
 func TestDirTxtar(t *testing.T) {
@@ -139,7 +139,7 @@ func TestDirTxtar(t *testing.T) {
 						t.Errorf("Mismatch:\nExpected:\n%q\nGot:\n%q\nDiff:\n%s", expectedTrimmed, gotTrimmed, Compare(expectedTrimmed, gotTrimmed))
 					}
 
-					if test.Patch {
+					if strings.Contains(test.Type, "patch") {
 						// Apply patch to current directory (tempDir)
 						if err := Apply(output, "."); err != nil {
 							t.Fatalf("Apply failed: %v", err)
