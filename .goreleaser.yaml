@@ -1,7 +1,7 @@
 project_name: golang-diff
 builds:
   - id: diff
-    binary: diff
+    binary: godiff
     main: ./cmd/diff
     goos:
       - linux
