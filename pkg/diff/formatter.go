@@ -28,10 +28,6 @@ func FormatDiff(lines []DiffLine, opts *Options) string {
 		// Buffer width: space + 2 chars + space = 4 chars
 		buffer := fmt.Sprintf(" %-2s ", symbol)
 
-		if rightStr == "" && !opts.TermMode {
-			buffer = strings.TrimRight(buffer, " ")
-		}
-
 		if opts.TermMode {
 			buffer = colorizeSymbol(buffer, line.Type)
 		}
