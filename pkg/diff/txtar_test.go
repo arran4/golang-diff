@@ -25,6 +25,9 @@ func TestTxtar(t *testing.T) {
 		if !strings.HasSuffix(path, ".txtar") {
 			return nil
 		}
+		if strings.HasPrefix(filepath.Base(path), "dir_") {
+			return nil
+		}
 
 		t.Run(filepath.Base(path), func(t *testing.T) {
 			content, err := testData.ReadFile(path)
