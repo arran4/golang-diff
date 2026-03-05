@@ -1,3 +1,4 @@
+version: 2
 project_name: golang-diff
 builds:
   - id: diff
@@ -19,10 +20,22 @@ archives:
 checksum:
   name_template: 'checksums.txt'
 snapshot:
-  name_template: "{{ .Tag }}-next"
+  version_template: "{{ .Tag }}-next"
 changelog:
   sort: asc
   filters:
     exclude:
       - '^docs:'
       - '^test:'
+
+brews:
+  - repository:
+      owner: arran4
+      name: homebrew-tap
+      branch: "{{.ProjectName}}-{{.Version}}"
+    pull_request:
+      enabled: true
+      base:
+        owner: arran4
+        name: homebrew-tap
+        branch: main
