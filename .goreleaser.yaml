@@ -33,9 +33,9 @@ brews:
       owner: arran4
       name: homebrew-tap
       branch: "{{.ProjectName}}-{{.Version}}"
-    pull_request:
-      enabled: true
-      base:
-        owner: arran4
-        name: homebrew-tap
-        branch: main
+      pull_request:
+        enabled: true
+        base:
+          owner: arran4
+          name: homebrew-tap
+          branch: main
