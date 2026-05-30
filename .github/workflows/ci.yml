@@ -372,7 +372,9 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Install Subc
-        run: go install github.com/arran4/go-subcommand/cmd/gosubc@v0.0.14
+        env:
+          GOTOOLCHAIN: auto
+        run: go install github.com/arran4/go-subcommand/cmd/gosubc@latest
       - name: Run checks
         run: |
           go fix ./...
@@ -397,7 +399,9 @@ jobs:
         with:
           go-version-file: go.mod
       - name: Install Subc
-        run: go install github.com/arran4/go-subcommand/cmd/gosubc@v0.0.14
+        env:
+          GOTOOLCHAIN: auto
+        run: go install github.com/arran4/go-subcommand/cmd/gosubc@latest
       - name: Run go fmt
         run: |
           go fix ./...
@@ -450,7 +454,7 @@ jobs:
         run: |
           set -euo pipefail
           if [[ "${{ needs.discover.outputs.has_go }}" == "true" ]]; then
-            go install github.com/arran4/go-subcommand/cmd/gosubc@v0.0.14 || true
+            GOTOOLCHAIN=auto go install github.com/arran4/go-subcommand/cmd/gosubc@latest || true
             go fix ./... || true
             go fmt ./... || true
             gosubc generate ./cmd/diff || true
