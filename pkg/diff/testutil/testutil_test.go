@@ -7,5 +7,5 @@ import (
 )
 
 func TestFailIfMismatch(t *testing.T) {
-	var _ diff.TestingT = testutil.FailIfMismatch(t)
+	_ = diff.TestingT(testutil.FailIfMismatch(t))
 }
