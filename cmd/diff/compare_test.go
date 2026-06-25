@@ -26,8 +26,16 @@ func TestCompare_Execute(t *testing.T) {
 	args = append(args, "test")
 	args = append(args, "--term")
 	args = append(args, "--interactive")
-	args = append(args, "--maxLines")
+	args = append(args, "--searchDepth")
 	args = append(args, "1")
+	args = append(args, "--limitLines")
+	args = append(args, "1")
+	args = append(args, "--limitWidth")
+	args = append(args, "1")
+	args = append(args, "--linesSelection")
+	args = append(args, "test")
+	args = append(args, "--widthSelection")
+	args = append(args, "test")
 
 	err := cmd.Execute(args)
 	if err != nil {
@@ -49,7 +57,19 @@ func TestCompare_Execute(t *testing.T) {
 	if cmd.interactive != true {
 		t.Errorf("Expected interactive to be true, got '%v'", cmd.interactive)
 	}
-	if cmd.maxLines != 1 {
-		t.Errorf("Expected maxLines to be 1, got '%v'", cmd.maxLines)
+	if cmd.searchDepth != 1 {
+		t.Errorf("Expected searchDepth to be 1, got '%v'", cmd.searchDepth)
+	}
+	if cmd.limitLines != 1 {
+		t.Errorf("Expected limitLines to be 1, got '%v'", cmd.limitLines)
+	}
+	if cmd.limitWidth != 1 {
+		t.Errorf("Expected limitWidth to be 1, got '%v'", cmd.limitWidth)
+	}
+	if cmd.linesSelection != "test" {
+		t.Errorf("Expected linesSelection to be 'test', got '%v'", cmd.linesSelection)
+	}
+	if cmd.widthSelection != "test" {
+		t.Errorf("Expected widthSelection to be 'test', got '%v'", cmd.widthSelection)
 	}
 }

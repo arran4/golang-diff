@@ -79,7 +79,7 @@ func TestAlignLines_DifferentLengths(t *testing.T) {
 func TestAlignLines_Lookahead(t *testing.T) {
 	// Restrict lookahead to 1
 	opts := NewOptions()
-	opts.MaxLines = 1
+	opts.SearchDepth = 1
 
 	a := []string{"a", "x", "y", "z", "b"}
 	b := []string{"a", "b"}
@@ -103,7 +103,7 @@ func TestAlignLines_Lookahead(t *testing.T) {
 
 	// Now try with sufficient lookahead
 	opts2 := NewOptions()
-	opts2.MaxLines = 5
+	opts2.SearchDepth = 5
 	got2 := AlignLines(a, b, opts2)
 	foundAlignment2 := false
 	for _, l := range got2 {
