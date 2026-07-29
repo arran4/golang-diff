@@ -14,7 +14,7 @@ type mockTestingT struct {
 
 func (m *mockTestingT) Helper() {}
 
-func (m *mockTestingT) Errorf(format string, args ...interface{}) {
+func (m *mockTestingT) Errorf(format string, args ...any) {
 	m.failed = true
 	m.errorMsg = fmt.Sprintf(format, args...)
 }

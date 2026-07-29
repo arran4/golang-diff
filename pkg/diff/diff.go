@@ -4,7 +4,7 @@ import (
 	"strings"
 )
 
-func Compare(a, b interface{}, options ...interface{}) string {
+func Compare(a, b any, options ...any) string {
 	opts := NewOptions(options...)
 
 	aLines := toStringSlice(a)
@@ -24,7 +24,7 @@ func Compare(a, b interface{}, options ...interface{}) string {
 	return output
 }
 
-func toStringSlice(v interface{}) []string {
+func toStringSlice(v any) []string {
 	switch t := v.(type) {
 	case string:
 		return strings.Split(t, "\n")

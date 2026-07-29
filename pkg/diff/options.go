@@ -8,7 +8,7 @@ type FileFilter func(path string) bool
 
 type TestingT interface {
 	Helper()
-	Errorf(format string, args ...interface{})
+	Errorf(format string, args ...any)
 }
 
 type Options struct {
@@ -52,7 +52,7 @@ type DiffLine struct {
 	Ops   []Operation
 }
 
-func NewOptions(args ...interface{}) *Options {
+func NewOptions(args ...any) *Options {
 	opts := &Options{
 		MaxLines: 1000,
 	}
