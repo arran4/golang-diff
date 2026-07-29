@@ -392,14 +392,36 @@ jobs:
         env:
           GOTOOLCHAIN: auto
         run: go install github.com/arran4/go-subcommand/cmd/gosubc@latest
-      - name: Run go fmt and generate
-        run: |
-          go fmt ./...
-          gosubc generate ./cmd/diff
+      - name: Run go fmt
+        run: go fmt ./...
       - name: Check for uncommitted changes
         run: |
           if [ -n "$(git status --porcelain)" ]; then
-            echo "Uncommitted changes found. Please run go fmt and gosubc generate locally."
+            echo "Uncommitted changes found. Please run go fmt locally."
+            git diff
+            exit 1
+          fi
+
+  go-generate:
+    name: Go Generate Check
+    needs: [route, discover]
+    if: ${{ needs.discover.outputs.has_go == 'true' && needs.route.outputs.run_code_checks == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - uses: actions/setup-go@v6.5.0
+        with:
+          go-version-file: go.mod
+      - name: Install Subc
+        env:
+          GOTOOLCHAIN: auto
+        run: go install github.com/arran4/go-subcommand/cmd/gosubc@latest
+      - name: Run gosubc generate
+        run: gosubc generate ./cmd/diff
+      - name: Check for uncommitted changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Uncommitted changes found. Please run gosubc generate locally."
             git diff
             exit 1
           fi
