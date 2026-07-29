@@ -32,7 +32,7 @@ func CompareFiles(file1 string, file2 string, term bool, interactive bool, maxLi
 		return
 	}
 
-	opts := []interface{}{
+	opts := []any{
 		diff.TermMode(term),
 		diff.Interactive(interactive),
 		diff.MaxLines(maxLines),
@@ -67,7 +67,7 @@ func CompareFiles(file1 string, file2 string, term bool, interactive bool, maxLi
 //	maxLines: --max-lines -m (default: 1000) Max lines to search for alignment
 //	selectFile: --select-file -s Glob pattern to filter files
 func DiffFiles(path1, path2 string, term bool, interactive bool, maxLines int, selectFile string) {
-	opts := []interface{}{
+	opts := []any{
 		diff.TermMode(term),
 		diff.Interactive(interactive),
 		diff.MaxLines(maxLines),
