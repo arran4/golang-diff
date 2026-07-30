@@ -101,13 +101,14 @@ func (s WithLineSelectionShortCode) Compile() (*ShortCodeLineSelectionLang, erro
 		if err != nil {
 			return nil, err
 		}
-		if i == 0 {
+		switch i {
+		case 0:
 			res.RangesA = append(res.RangesA, r)
 			// If only one positional arg, apply to B as well?
 			if len(posArgs) == 1 {
 				res.RangesB = append(res.RangesB, r)
 			}
-		} else if i == 1 {
+		case 1:
 			res.RangesB = append(res.RangesB, r)
 		}
 	}
@@ -170,14 +171,15 @@ func (s WithWidthSelectionShortCode) Compile() (*ShortCodeWidthSelectionLang, er
 		r, err := parseRange(arg)
 		if err != nil {
 			return nil, err
-		}
-		if i == 0 {
+		switch i {
+		case 0:
 			res.RangesA = append(res.RangesA, r)
 			if len(posArgs) == 1 {
 				res.RangesB = append(res.RangesB, r)
 			}
-		} else if i == 1 {
+		case 1:
 			res.RangesB = append(res.RangesB, r)
+		}
 		}
 	}
 

@@ -10,5 +10,5 @@ import (
 var selectionHelp string
 
 func PrintSelectionHelp(w io.Writer) {
-	fmt.Fprint(w, selectionHelp)
+	_, _ = fmt.Fprint(w, selectionHelp)
 }
