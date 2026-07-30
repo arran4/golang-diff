@@ -19,7 +19,7 @@ func AlignLines(a, b []string, opts *Options) []DiffLine {
 
 	var result []DiffLine
 	ai, bi := 0, 0
-	maxLookahead := opts.MaxLines
+	maxLookahead := opts.SearchDepth
 	if maxLookahead <= 0 {
 		maxLookahead = 1000
 	}
@@ -187,11 +187,8 @@ func ComputeDiffType(a, b string) (DiffType, []Operation) {
 	if blocks == 2 {
 		return Diff2, ops
 	}
-	if blocks < 10 {
-		return DiffType(fmt.Sprintf("%dd", blocks)), ops
-	}
 
-	return "+d", ops
+	return DiffChar, ops
 }
 
 func getEditScript(s1, s2 string) []Operation {

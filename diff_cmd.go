@@ -19,8 +19,12 @@ import (
 //	file2: @2 File 2 path
 //	term: --term -t Terminal mode (colors)
 //	interactive: --interactive -i Interactive mode
-//	maxLines: --max-lines -m (default: 1000) Max lines to search for alignment
-func CompareFiles(file1 string, file2 string, term bool, interactive bool, maxLines int) {
+//	searchDepth: --search-depth -s (default: 1000) Max lines to search for alignment
+//	limitLines: --max-lines (default: 0) Max lines to compare
+//	limitWidth: --max-width (default: 0) Max width
+//	linesSelection: --lines -l Line selection
+//	widthSelection: --width -w Width selection
+func CompareFiles(file1 string, file2 string, term bool, interactive bool, searchDepth int, limitLines, limitWidth int, linesSelection, widthSelection string) {
 	c1, err := os.ReadFile(file1)
 	if err != nil {
 		fmt.Printf("Error reading %s: %v\n", file1, err)
@@ -32,10 +36,14 @@ func CompareFiles(file1 string, file2 string, term bool, interactive bool, maxLi
 		return
 	}
 
-	opts := []any{
+	opts := []interface{}{
 		diff.TermMode(term),
 		diff.Interactive(interactive),
-		diff.MaxLines(maxLines),
+		diff.SearchDepth(searchDepth),
+		diff.WithMaxLines(limitLines),
+		diff.WithMaxWidth(limitWidth),
+		diff.WithLineSelectionShortCode(linesSelection),
+		diff.WithWidthSelectionShortCode(widthSelection),
 	}
 
 	output := diff.Compare(string(c1), string(c2), opts...)
@@ -55,7 +63,7 @@ func CompareFiles(file1 string, file2 string, term bool, interactive bool, maxLi
 	}
 }
 
-// DiffFiles is a subcommand 'diff diff'
+// DiffFiles is a subcommand 'godiff diff'
 // Compares two paths (files or directories) recursively.
 //
 // Flags:
@@ -64,13 +72,13 @@ func CompareFiles(file1 string, file2 string, term bool, interactive bool, maxLi
 //	path2: @2 Path 2
 //	term: --term -t Terminal mode (colors)
 //	interactive: --interactive -i Interactive mode
-//	maxLines: --max-lines -m (default: 1000) Max lines to search for alignment
-//	selectFile: --select-file -s Glob pattern to filter files
-func DiffFiles(path1, path2 string, term bool, interactive bool, maxLines int, selectFile string) {
-	opts := []any{
+//	searchDepth: --search-depth -s (default: 1000) Max lines to search for alignment
+//	selectFile: --select-file -f Glob pattern to filter files
+func DiffFiles(path1, path2 string, term bool, interactive bool, searchDepth int, selectFile string) {
+	opts := []interface{}{
 		diff.TermMode(term),
 		diff.Interactive(interactive),
-		diff.MaxLines(maxLines),
+		diff.SearchDepth(searchDepth),
 	}
 
 	if selectFile != "" {

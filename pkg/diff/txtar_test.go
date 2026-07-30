@@ -99,9 +99,9 @@ func TestTxtar(t *testing.T) {
 				t.Fatalf("Missing required files (input1.txt, input2.txt, expected.txt) or their decoded variants")
 			}
 
-			var opts []any
+			var opts []interface{}
 			if len(optionsJSON) > 0 {
-				var rawOpts map[string]any
+				var rawOpts map[string]interface{}
 				if err := json.Unmarshal(optionsJSON, &rawOpts); err != nil {
 					t.Fatalf("Failed to parse options.json: %v", err)
 				}
@@ -110,6 +110,26 @@ func TestTxtar(t *testing.T) {
 					case "MaxLines":
 						if f, ok := v.(float64); ok {
 							opts = append(opts, int(f))
+						}
+					case "SearchDepth":
+						if f, ok := v.(float64); ok {
+							opts = append(opts, SearchDepth(int(f)))
+						}
+					case "LimitLines":
+						if f, ok := v.(float64); ok {
+							opts = append(opts, WithMaxLines(int(f)))
+						}
+					case "LimitWidth":
+						if f, ok := v.(float64); ok {
+							opts = append(opts, WithMaxWidth(int(f)))
+						}
+					case "LinesSelection":
+						if s, ok := v.(string); ok {
+							opts = append(opts, WithLineSelectionShortCode(s))
+						}
+					case "WidthSelection":
+						if s, ok := v.(string); ok {
+							opts = append(opts, WithWidthSelectionShortCode(s))
 						}
 					case "TermMode":
 						if b, ok := v.(bool); ok {

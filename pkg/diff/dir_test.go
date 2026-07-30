@@ -100,7 +100,7 @@ func TestDirTxtar(t *testing.T) {
 					dir1 := test.Dir1
 					dir2 := test.Dir2
 
-					var opts []any
+					var opts []interface{}
 					if test.Filter != "" {
 						opts = append(opts, FileFilter(func(path string) bool {
 							matched, _ := filepath.Match(test.Filter, filepath.Base(path))
@@ -131,8 +131,8 @@ func TestDirTxtar(t *testing.T) {
 					}
 
 					// Normalize line endings and trim spaces for comparison
-					gotTrimmed := trimTrailingSpaces(output)
-					expectedTrimmed := trimTrailingSpaces(expected)
+					gotTrimmed := output
+					expectedTrimmed := expected
 
 					if gotTrimmed != expectedTrimmed {
 						t.Errorf("Mismatch:\nExpected:\n%q\nGot:\n%q\nDiff:\n%s", expectedTrimmed, gotTrimmed, Compare(expectedTrimmed, gotTrimmed))

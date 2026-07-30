@@ -17,14 +17,18 @@ var _ Cmd = (*Compare)(nil)
 
 type Compare struct {
 	*RootCmd
-	Flags         *flag.FlagSet
-	file1         string
-	file2         string
-	term          bool
-	interactive   bool
-	maxLines      int
-	SubCommands   map[string]func() Cmd
-	CommandAction func(c *Compare) error
+	Flags          *flag.FlagSet
+	file1          string
+	file2          string
+	term           bool
+	interactive    bool
+	searchDepth    int
+	limitLines     int
+	limitWidth     int
+	linesSelection string
+	widthSelection string
+	SubCommands    map[string]func() Cmd
+	CommandAction  func(c *Compare) error
 }
 
 type UsageDataCompare struct {
@@ -94,7 +98,7 @@ func (c *Compare) Execute(args []string) error {
 					c.interactive = true
 				}
 
-			case "maxLines", "max-lines":
+			case "searchDepth", "search-depth":
 				if !hasValue {
 					if i+1 < len(args) {
 						value = args[i+1]
@@ -107,7 +111,59 @@ func (c *Compare) Execute(args []string) error {
 				if err != nil {
 					return fmt.Errorf("invalid integer value for flag %s: %s", name, value)
 				}
-				c.maxLines = v
+				c.searchDepth = v
+
+			case "limitLines", "max-lines":
+				if !hasValue {
+					if i+1 < len(args) {
+						value = args[i+1]
+						i++
+					} else {
+						return fmt.Errorf("flag %s requires a value", name)
+					}
+				}
+				v, err := strconv.Atoi(value)
+				if err != nil {
+					return fmt.Errorf("invalid integer value for flag %s: %s", name, value)
+				}
+				c.limitLines = v
+
+			case "limitWidth", "max-width":
+				if !hasValue {
+					if i+1 < len(args) {
+						value = args[i+1]
+						i++
+					} else {
+						return fmt.Errorf("flag %s requires a value", name)
+					}
+				}
+				v, err := strconv.Atoi(value)
+				if err != nil {
+					return fmt.Errorf("invalid integer value for flag %s: %s", name, value)
+				}
+				c.limitWidth = v
+
+			case "linesSelection", "lines":
+				if !hasValue {
+					if i+1 < len(args) {
+						value = args[i+1]
+						i++
+					} else {
+						return fmt.Errorf("flag %s requires a value", name)
+					}
+				}
+				c.linesSelection = value
+
+			case "widthSelection", "width":
+				if !hasValue {
+					if i+1 < len(args) {
+						value = args[i+1]
+						i++
+					} else {
+						return fmt.Errorf("flag %s requires a value", name)
+					}
+				}
+				c.widthSelection = value
 			default:
 				return fmt.Errorf("unknown flag: --%s", name)
 			}
@@ -132,7 +188,7 @@ func (c *Compare) Execute(args []string) error {
 					c.interactive = true
 				}
 
-				if char == "m" {
+				if char == "s" {
 					found = true
 					// Value flag
 					value := ""
@@ -156,7 +212,53 @@ func (c *Compare) Execute(args []string) error {
 					if err != nil {
 						return fmt.Errorf("invalid integer value for flag -%s: %s", char, value)
 					}
-					c.maxLines = v
+					c.searchDepth = v
+				}
+
+				if char == "l" {
+					found = true
+					// Value flag
+					value := ""
+					if j+1 < len(shorts) {
+						// Value is the rest of the short flag
+						value = shorts[j+1:]
+						if strings.HasPrefix(value, "=") {
+							value = value[1:]
+						}
+						j = len(shorts) // break inner loop
+					} else {
+						// Value is the next arg
+						if i+1 < len(args) {
+							value = args[i+1]
+							i++
+						} else {
+							return fmt.Errorf("flag -%s requires a value", char)
+						}
+					}
+					c.linesSelection = value
+				}
+
+				if char == "w" {
+					found = true
+					// Value flag
+					value := ""
+					if j+1 < len(shorts) {
+						// Value is the rest of the short flag
+						value = shorts[j+1:]
+						if strings.HasPrefix(value, "=") {
+							value = value[1:]
+						}
+						j = len(shorts) // break inner loop
+					} else {
+						// Value is the next arg
+						if i+1 < len(args) {
+							value = args[i+1]
+							i++
+						} else {
+							return fmt.Errorf("flag -%s requires a value", char)
+						}
+					}
+					c.widthSelection = value
 				}
 				if !found {
 					return fmt.Errorf("unknown flag: -%s", char)
@@ -218,13 +320,23 @@ func (c *RootCmd) NewCompare() *Compare {
 	set.BoolVar(&v.interactive, "interactive", false, "Interactive mode")
 	set.BoolVar(&v.interactive, "i", false, "Interactive mode")
 
-	set.IntVar(&v.maxLines, "max-lines", 1000, "Max lines to search for alignment")
-	set.IntVar(&v.maxLines, "m", 1000, "Max lines to search for alignment")
+	set.IntVar(&v.searchDepth, "search-depth", 1000, "Max lines to search for alignment")
+	set.IntVar(&v.searchDepth, "s", 1000, "Max lines to search for alignment")
+
+	set.IntVar(&v.limitLines, "max-lines", 0, "Max lines to compare")
+
+	set.IntVar(&v.limitWidth, "max-width", 0, "Max width")
+
+	set.StringVar(&v.linesSelection, "lines", "", "Line selection")
+	set.StringVar(&v.linesSelection, "l", "", "Line selection")
+
+	set.StringVar(&v.widthSelection, "width", "", "Width selection")
+	set.StringVar(&v.widthSelection, "w", "", "Width selection")
 	set.Usage = v.Usage
 
 	v.CommandAction = func(c *Compare) error {
 
-		app.CompareFiles(c.file1, c.file2, c.term, c.interactive, c.maxLines)
+		app.CompareFiles(c.file1, c.file2, c.term, c.interactive, c.searchDepth, c.limitLines, c.limitWidth, c.linesSelection, c.widthSelection)
 		return nil
 	}
 
