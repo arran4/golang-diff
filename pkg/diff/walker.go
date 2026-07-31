@@ -8,7 +8,7 @@ import (
 	"strings"
 )
 
-func Diff(path1, path2 string, options ...interface{}) (string, error) {
+func Diff(path1, path2 string, options ...any) (string, error) {
 	opts := NewOptions(options...)
 
 	// Initial check to handle file vs dir at root level

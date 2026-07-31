@@ -36,7 +36,7 @@ func CompareFiles(file1 string, file2 string, term bool, interactive bool, searc
 		return
 	}
 
-	opts := []interface{}{
+	opts := []any{
 		diff.TermMode(term),
 		diff.Interactive(interactive),
 		diff.SearchDepth(searchDepth),
@@ -75,7 +75,7 @@ func CompareFiles(file1 string, file2 string, term bool, interactive bool, searc
 //	searchDepth: --search-depth -s (default: 1000) Max lines to search for alignment
 //	selectFile: --select-file -f Glob pattern to filter files
 func DiffFiles(path1, path2 string, term bool, interactive bool, searchDepth int, selectFile string) {
-	opts := []interface{}{
+	opts := []any{
 		diff.TermMode(term),
 		diff.Interactive(interactive),
 		diff.SearchDepth(searchDepth),

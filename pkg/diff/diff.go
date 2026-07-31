@@ -5,7 +5,7 @@ import (
 	"strings"
 )
 
-func Compare(a, b interface{}, options ...interface{}) string {
+func Compare(a, b any, options ...any) string {
 	opts := NewOptions(options...)
 
 	aLines := toStringSlice(a)
@@ -121,7 +121,7 @@ func applyLimitWidth(lines []string, limit int) []string {
 	return result
 }
 
-func toStringSlice(v interface{}) []string {
+func toStringSlice(v any) []string {
 	switch t := v.(type) {
 	case string:
 		return strings.Split(t, "\n")

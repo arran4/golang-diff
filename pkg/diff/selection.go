@@ -79,14 +79,14 @@ func (s WithLineSelectionShortCode) Compile() (*ShortCodeLineSelectionLang, erro
 
 	for _, p := range parts {
 		p = strings.TrimSpace(p)
-		if strings.HasPrefix(p, "a:") {
-			r, err := parseRange(strings.TrimPrefix(p, "a:"))
+		if after, ok := strings.CutPrefix(p, "a:"); ok {
+			r, err := parseRange(after)
 			if err != nil {
 				return nil, err
 			}
 			res.RangesA = append(res.RangesA, r)
-		} else if strings.HasPrefix(p, "b:") {
-			r, err := parseRange(strings.TrimPrefix(p, "b:"))
+		} else if after, ok := strings.CutPrefix(p, "b:"); ok {
+			r, err := parseRange(after)
 			if err != nil {
 				return nil, err
 			}
@@ -150,14 +150,14 @@ func (s WithWidthSelectionShortCode) Compile() (*ShortCodeWidthSelectionLang, er
 
 	for _, p := range parts {
 		p = strings.TrimSpace(p)
-		if strings.HasPrefix(p, "a:") {
-			r, err := parseRange(strings.TrimPrefix(p, "a:"))
+		if after, ok := strings.CutPrefix(p, "a:"); ok {
+			r, err := parseRange(after)
 			if err != nil {
 				return nil, err
 			}
 			res.RangesA = append(res.RangesA, r)
-		} else if strings.HasPrefix(p, "b:") {
-			r, err := parseRange(strings.TrimPrefix(p, "b:"))
+		} else if after, ok := strings.CutPrefix(p, "b:"); ok {
+			r, err := parseRange(after)
 			if err != nil {
 				return nil, err
 			}

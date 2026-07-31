@@ -99,9 +99,9 @@ func TestTxtar(t *testing.T) {
 				t.Fatalf("Missing required files (input1.txt, input2.txt, expected.txt) or their decoded variants")
 			}
 
-			var opts []interface{}
+			var opts []any
 			if len(optionsJSON) > 0 {
-				var rawOpts map[string]interface{}
+				var rawOpts map[string]any
 				if err := json.Unmarshal(optionsJSON, &rawOpts); err != nil {
 					t.Fatalf("Failed to parse options.json: %v", err)
 				}

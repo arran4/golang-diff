@@ -100,7 +100,7 @@ func TestDirTxtar(t *testing.T) {
 					dir1 := test.Dir1
 					dir2 := test.Dir2
 
-					var opts []interface{}
+					var opts []any
 					if test.Filter != "" {
 						opts = append(opts, FileFilter(func(path string) bool {
 							matched, _ := filepath.Match(test.Filter, filepath.Base(path))
