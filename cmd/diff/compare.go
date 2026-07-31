@@ -6,11 +6,10 @@ import (
 	"flag"
 	"fmt"
 	"os"
-	"slices"
 	"strconv"
 	"strings"
 
-	app "github.com/arran4/golang-diff"
+	"github.com/arran4/golang-diff"
 )
 
 var _ Cmd = (*Compare)(nil)
@@ -27,7 +26,7 @@ type Compare struct {
 	limitWidth     int
 	linesSelection string
 	widthSelection string
-	SubCommands    map[string]func() Cmd
+	SubCommands    map[string]Cmd
 	CommandAction  func(c *Compare) error
 }
 
@@ -51,6 +50,11 @@ func (c *Compare) UsageRecursive() {
 }
 
 func (c *Compare) Execute(args []string) error {
+	if len(args) > 0 {
+		if cmd, ok := c.SubCommands[args[0]]; ok {
+			return cmd.Execute(args[1:])
+		}
+	}
 	var remainingArgs []string
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
@@ -58,25 +62,20 @@ func (c *Compare) Execute(args []string) error {
 			remainingArgs = append(remainingArgs, args[i+1:]...)
 			break
 		}
-		if strings.HasPrefix(arg, "--") {
-			if arg == "--help" {
-				c.Usage()
-				return nil
-			}
-			name := arg[2:]
+		if strings.HasPrefix(arg, "-") && arg != "-" {
+			name := arg
 			value := ""
 			hasValue := false
-			if strings.Contains(name, "=") {
-				parts := strings.SplitN(name, "=", 2)
+			if strings.Contains(arg, "=") {
+				parts := strings.SplitN(arg, "=", 2)
 				name = parts[0]
 				value = parts[1]
 				hasValue = true
 			}
-			_ = value
-			_ = hasValue
-			switch name {
+			trimmedName := strings.TrimLeft(name, "-")
+			switch trimmedName {
 
-			case "term":
+			case "term", "t":
 				if hasValue {
 					b, err := strconv.ParseBool(value)
 					if err != nil {
@@ -87,7 +86,7 @@ func (c *Compare) Execute(args []string) error {
 					c.term = true
 				}
 
-			case "interactive":
+			case "interactive", "i":
 				if hasValue {
 					b, err := strconv.ParseBool(value)
 					if err != nil {
@@ -98,7 +97,7 @@ func (c *Compare) Execute(args []string) error {
 					c.interactive = true
 				}
 
-			case "searchDepth", "search-depth":
+			case "searchDepth", "search-depth", "s":
 				if !hasValue {
 					if i+1 < len(args) {
 						value = args[i+1]
@@ -107,11 +106,11 @@ func (c *Compare) Execute(args []string) error {
 						return fmt.Errorf("flag %s requires a value", name)
 					}
 				}
-				v, err := strconv.Atoi(value)
+				iv, err := strconv.Atoi(value)
 				if err != nil {
 					return fmt.Errorf("invalid integer value for flag %s: %s", name, value)
 				}
-				c.searchDepth = v
+				c.searchDepth = iv
 
 			case "limitLines", "max-lines":
 				if !hasValue {
@@ -122,11 +121,11 @@ func (c *Compare) Execute(args []string) error {
 						return fmt.Errorf("flag %s requires a value", name)
 					}
 				}
-				v, err := strconv.Atoi(value)
+				iv, err := strconv.Atoi(value)
 				if err != nil {
 					return fmt.Errorf("invalid integer value for flag %s: %s", name, value)
 				}
-				c.limitLines = v
+				c.limitLines = iv
 
 			case "limitWidth", "max-width":
 				if !hasValue {
@@ -137,13 +136,13 @@ func (c *Compare) Execute(args []string) error {
 						return fmt.Errorf("flag %s requires a value", name)
 					}
 				}
-				v, err := strconv.Atoi(value)
+				iv, err := strconv.Atoi(value)
 				if err != nil {
 					return fmt.Errorf("invalid integer value for flag %s: %s", name, value)
 				}
-				c.limitWidth = v
+				c.limitWidth = iv
 
-			case "linesSelection", "lines":
+			case "linesSelection", "lines", "l":
 				if !hasValue {
 					if i+1 < len(args) {
 						value = args[i+1]
@@ -154,7 +153,7 @@ func (c *Compare) Execute(args []string) error {
 				}
 				c.linesSelection = value
 
-			case "widthSelection", "width":
+			case "widthSelection", "width", "w":
 				if !hasValue {
 					if i+1 < len(args) {
 						value = args[i+1]
@@ -164,115 +163,14 @@ func (c *Compare) Execute(args []string) error {
 					}
 				}
 				c.widthSelection = value
+			case "help", "h":
+				c.Usage()
+				return nil
 			default:
-				return fmt.Errorf("unknown flag: --%s", name)
-			}
-		} else if strings.HasPrefix(arg, "-") && arg != "-" {
-			// Short flags
-			shorts := arg[1:]
-			for j := 0; j < len(shorts); j++ {
-				char := string(shorts[j])
-				if char == "h" {
-					c.Usage()
-					return nil
-				}
-				found := false
-
-				if char == "t" {
-					found = true
-					c.term = true
-				}
-
-				if char == "i" {
-					found = true
-					c.interactive = true
-				}
-
-				if char == "s" {
-					found = true
-					// Value flag
-					value := ""
-					if j+1 < len(shorts) {
-						// Value is the rest of the short flag
-						value = shorts[j+1:]
-						if strings.HasPrefix(value, "=") {
-							value = value[1:]
-						}
-						j = len(shorts) // break inner loop
-					} else {
-						// Value is the next arg
-						if i+1 < len(args) {
-							value = args[i+1]
-							i++
-						} else {
-							return fmt.Errorf("flag -%s requires a value", char)
-						}
-					}
-					v, err := strconv.Atoi(value)
-					if err != nil {
-						return fmt.Errorf("invalid integer value for flag -%s: %s", char, value)
-					}
-					c.searchDepth = v
-				}
-
-				if char == "l" {
-					found = true
-					// Value flag
-					value := ""
-					if j+1 < len(shorts) {
-						// Value is the rest of the short flag
-						value = shorts[j+1:]
-						if strings.HasPrefix(value, "=") {
-							value = value[1:]
-						}
-						j = len(shorts) // break inner loop
-					} else {
-						// Value is the next arg
-						if i+1 < len(args) {
-							value = args[i+1]
-							i++
-						} else {
-							return fmt.Errorf("flag -%s requires a value", char)
-						}
-					}
-					c.linesSelection = value
-				}
-
-				if char == "w" {
-					found = true
-					// Value flag
-					value := ""
-					if j+1 < len(shorts) {
-						// Value is the rest of the short flag
-						value = shorts[j+1:]
-						if strings.HasPrefix(value, "=") {
-							value = value[1:]
-						}
-						j = len(shorts) // break inner loop
-					} else {
-						// Value is the next arg
-						if i+1 < len(args) {
-							value = args[i+1]
-							i++
-						} else {
-							return fmt.Errorf("flag -%s requires a value", char)
-						}
-					}
-					c.widthSelection = value
-				}
-				if !found {
-					return fmt.Errorf("unknown flag: -%s", char)
-				}
+				return fmt.Errorf("unknown flag: %s", name)
 			}
 		} else {
-			remainingArgs = append(remainingArgs, args[i:]...)
-			break
-		}
-	}
-
-	if len(remainingArgs) > 0 {
-		if cmd, ok := c.SubCommands[remainingArgs[0]]; ok {
-			return cmd().Execute(remainingArgs[1:])
+			remainingArgs = append(remainingArgs, arg)
 		}
 	}
 	if len(remainingArgs) < 2 {
@@ -311,11 +209,11 @@ func (c *RootCmd) NewCompare() *Compare {
 	v := &Compare{
 		RootCmd:     c,
 		Flags:       set,
-		SubCommands: make(map[string]func() Cmd),
+		SubCommands: make(map[string]Cmd),
 	}
 
-	set.BoolVar(&v.term, "term", false, "Terminal mode (colors)")
-	set.BoolVar(&v.term, "t", false, "Terminal mode (colors)")
+	set.BoolVar(&v.term, "term", false, "Terminal mode colors")
+	set.BoolVar(&v.term, "t", false, "Terminal mode colors")
 
 	set.BoolVar(&v.interactive, "interactive", false, "Interactive mode")
 	set.BoolVar(&v.interactive, "i", false, "Interactive mode")
@@ -340,31 +238,31 @@ func (c *RootCmd) NewCompare() *Compare {
 		return nil
 	}
 
-	v.SubCommands["help"] = func() Cmd {
-		return &InternalCommand{
-			Exec: func(args []string) error {
-				if slices.Contains(args, "-deep") {
+	v.SubCommands["help"] = &InternalCommand{
+		Exec: func(args []string) error {
+			for _, arg := range args {
+				if arg == "-deep" {
 					v.UsageRecursive()
 					return nil
 				}
-				v.Usage()
-				return nil
-			},
-			UsageFunc: v.Usage,
-		}
+			}
+			v.Usage()
+			return nil
+		},
+		UsageFunc: v.Usage,
 	}
-	v.SubCommands["usage"] = func() Cmd {
-		return &InternalCommand{
-			Exec: func(args []string) error {
-				if slices.Contains(args, "-deep") {
+	v.SubCommands["usage"] = &InternalCommand{
+		Exec: func(args []string) error {
+			for _, arg := range args {
+				if arg == "-deep" {
 					v.UsageRecursive()
 					return nil
 				}
-				v.Usage()
-				return nil
-			},
-			UsageFunc: v.Usage,
-		}
+			}
+			v.Usage()
+			return nil
+		},
+		UsageFunc: v.Usage,
 	}
 	return v
 }

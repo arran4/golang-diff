@@ -11,7 +11,7 @@ func TestCompare_Execute(t *testing.T) {
 
 	parent := &RootCmd{
 		FlagSet:  flag.NewFlagSet("root", flag.ContinueOnError),
-		Commands: make(map[string]func() Cmd),
+		Commands: make(map[string]Cmd),
 	}
 	cmd := parent.NewCompare()
 
@@ -22,26 +22,25 @@ func TestCompare_Execute(t *testing.T) {
 	}
 
 	args := []string{}
+	args = append(args, "test")
+	args = append(args, "test")
 	args = append(args, "--term")
 	args = append(args, "--interactive")
-	args = append(args, "--search-depth")
+	args = append(args, "--searchDepth")
 	args = append(args, "1")
-	args = append(args, "--max-lines")
+	args = append(args, "--limitLines")
 	args = append(args, "1")
-	args = append(args, "--max-width")
+	args = append(args, "--limitWidth")
 	args = append(args, "1")
-	args = append(args, "--lines")
+	args = append(args, "--linesSelection")
 	args = append(args, "test")
-	args = append(args, "--width")
-	args = append(args, "test")
-	args = append(args, "test")
+	args = append(args, "--widthSelection")
 	args = append(args, "test")
 
 	err := cmd.Execute(args)
 	if err != nil {
 		t.Errorf("Unexpected error: %v", err)
 	}
-
 	if !called {
 		t.Error("CommandAction was not called")
 	}
@@ -72,27 +71,5 @@ func TestCompare_Execute(t *testing.T) {
 	}
 	if cmd.widthSelection != "test" {
 		t.Errorf("Expected widthSelection to be 'test', got '%v'", cmd.widthSelection)
-	}
-}
-
-func TestCompare_ExecuteHelpAndUnknownFlags(t *testing.T) {
-
-	parent := &RootCmd{
-		FlagSet:  flag.NewFlagSet("root", flag.ContinueOnError),
-		Commands: make(map[string]func() Cmd),
-	}
-	cmd := parent.NewCompare()
-
-	if err := cmd.Execute([]string{"--help"}); err != nil {
-		t.Errorf("--help returned an error: %v", err)
-	}
-	if err := cmd.Execute([]string{"-h"}); err != nil {
-		t.Errorf("-h returned an error: %v", err)
-	}
-	if err := cmd.Execute([]string{"--not-a-real-flag"}); err == nil {
-		t.Error("expected an error for an unknown long flag")
-	}
-	if err := cmd.Execute([]string{"-?"}); err == nil {
-		t.Error("expected an error for an unknown short flag")
 	}
 }

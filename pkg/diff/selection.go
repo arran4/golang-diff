@@ -171,6 +171,7 @@ func (s WithWidthSelectionShortCode) Compile() (*ShortCodeWidthSelectionLang, er
 		r, err := parseRange(arg)
 		if err != nil {
 			return nil, err
+		}
 		switch i {
 		case 0:
 			res.RangesA = append(res.RangesA, r)
@@ -179,7 +180,6 @@ func (s WithWidthSelectionShortCode) Compile() (*ShortCodeWidthSelectionLang, er
 			}
 		case 1:
 			res.RangesB = append(res.RangesB, r)
-		}
 		}
 	}
 

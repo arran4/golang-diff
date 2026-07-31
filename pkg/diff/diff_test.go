@@ -106,7 +106,7 @@ func TestCompareOptions(t *testing.T) {
 	// "line3 diff" -> "line"
 	// So they become identical.
 	res = Compare(a, b, WithWidthSelectionShortCode("1-4"))
-	if strings.Contains(res, "diff") && !strings.Contains(res, "q  line3 diff") { // "diff" word in content should be gone
+	if strings.Contains(res, "diff") { // "diff" word in content should be gone
 		t.Errorf("Expected 'diff' content to be stripped by WidthSelection(1-4). Output:\n%s", res)
 	}
 
