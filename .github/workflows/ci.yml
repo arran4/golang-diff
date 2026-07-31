@@ -381,11 +381,11 @@ jobs:
         run: |
           go fix ./...
           go fmt ./...
-          gosubc generate ./cmd/diff
+
       - name: Check for uncommitted changes
         run: |
           if [ -n "$(git status --porcelain)" ]; then
-            echo "Uncommitted changes found. Please run go fix, go fmt, and gosubc generate locally."
+            echo "Uncommitted changes found. Please run go fix and go fmt locally."
             git diff
             exit 1
           fi
@@ -408,7 +408,7 @@ jobs:
         run: |
           go fix ./...
           go fmt ./...
-          gosubc generate ./cmd/diff
+
       - name: Create PR if formatting changed files
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -459,7 +459,7 @@ jobs:
             GOTOOLCHAIN=auto go install github.com/arran4/go-subcommand/cmd/gosubc@latest || true
             go fix ./... || true
             go fmt ./... || true
-            gosubc generate ./cmd/diff || true
+
           fi
           if [[ "${{ needs.discover.outputs.has_node }}" == "true" ]]; then
             npm ci || true
