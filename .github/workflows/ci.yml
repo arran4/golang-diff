@@ -466,7 +466,7 @@ jobs:
         run: |
           go fix ./...
           go fmt ./...
-          gosubc generate ./cmd/diff
+
       - name: Create PR if formatting changed files
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -517,7 +517,7 @@ jobs:
             GOTOOLCHAIN=auto go install github.com/arran4/go-subcommand/cmd/gosubc@latest || true
             go fix ./... || true
             go fmt ./... || true
-            gosubc generate ./cmd/diff || true
+
           fi
           if [[ "${{ needs.discover.outputs.has_node }}" == "true" ]]; then
             npm ci || true
