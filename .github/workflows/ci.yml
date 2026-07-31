@@ -44,9 +44,7 @@ on:
         type: boolean
   schedule:
     # preferred heavy monthly run (quota reset strategy)
-    - cron: '17 3 1 * *'
-    # optional nightly lightweight checks
-    - cron: '41 2 * * *'
+    - cron: '0 19 1 * *'
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -117,11 +115,8 @@ jobs:
               ;;
             schedule)
               run_code_checks=true
-              if [[ "${{ github.event.schedule }}" == "17 3 1 * *" ]]; then
+              if [[ "${{ github.event.schedule }}" == "0 19 1 * *" ]]; then
                 is_monthly=true
-              fi
-              if [[ "${{ github.event.schedule }}" == "41 2 * * *" ]]; then
-                is_nightly=true
               fi
               ;;
           esac
@@ -142,7 +137,7 @@ jobs:
       release_tag: ${{ steps.tag.outputs.release_tag }}
       next_version: ${{ steps.tag.outputs.next_version }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7.0.0
         with:
           fetch-depth: 0
       - name: Setup git-tag-inc
@@ -246,7 +241,7 @@ jobs:
       has_dart_or_flutter_tests: ${{ steps.detect.outputs.has_dart_or_flutter_tests }}
       has_packaging: ${{ steps.detect.outputs.has_packaging }}
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7.0.0
 
       # Template-time toggles (set these once for the repo; avoid broad auto-detection)
       # EXPECT_GO=true
@@ -297,7 +292,7 @@ jobs:
     if: ${{ needs.route.outputs.run_cleanup != 'true' && (needs.route.outputs.is_nightly == 'true' || needs.route.outputs.is_monthly == 'true') }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7.0.0
         with:
           fetch-depth: 0
       - uses: gitleaks/gitleaks-action@v2
@@ -321,17 +316,17 @@ jobs:
     if: ${{ needs.discover.outputs.has_go == 'true' && needs.route.outputs.run_code_checks == 'true' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-go@v6
+      - uses: actions/checkout@v7.0.0
+      - uses: actions/setup-go@v6.5.0
         with:
           go-version-file: go.mod
       - name: golangci-lint
-        uses: golangci/golangci-lint-action@v9
+        uses: golangci/golangci-lint-action@v9.3.0
         with:
           version: latest
 
   go-test:
-    name: Go lint/test (${{ matrix.os }})
+    name: Go test (${{ matrix.os }})
     needs: [route, discover, golangci]
     if: ${{ needs.discover.outputs.has_go == 'true' && needs.route.outputs.run_code_checks == 'true' }}
     runs-on: ${{ matrix.os }}
@@ -342,8 +337,8 @@ jobs:
         # Add windows-latest/macos-latest only for true platform-specific behavior.
         os: [ubuntu-latest]
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-go@v6
+      - uses: actions/checkout@v7.0.0
+      - uses: actions/setup-go@v6.5.0
         with:
           go-version-file: go.mod
           cache: true
@@ -356,36 +351,99 @@ jobs:
     if: ${{ needs.discover.outputs.has_go == 'true' && needs.route.outputs.run_code_checks == 'true' && needs.discover.outputs.profile == 'public' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-go@v6
+      - uses: actions/checkout@v7.0.0
+      - uses: actions/setup-go@v6.5.0
         with:
           go-version-file: go.mod
           cache: true
       - run: go vet ./...
 
-  go-tidy:
-    name: Go Tidy/Fmt Check
+  go-mod-tidy:
+    name: Go Mod Tidy Check
     needs: [route, discover]
     if: ${{ needs.discover.outputs.has_go == 'true' && needs.route.outputs.run_code_checks == 'true' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-go@v6
+      - uses: actions/checkout@v7.0.0
+      - uses: actions/setup-go@v6.5.0
+        with:
+          go-version-file: go.mod
+      - name: Run go mod tidy
+        run: go mod tidy
+      - name: Check for uncommitted changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Uncommitted changes found. Please run go mod tidy locally."
+            git diff
+            exit 1
+          fi
+
+  go-fmt:
+    name: Go Fmt Check
+    needs: [route, discover]
+    if: ${{ needs.discover.outputs.has_go == 'true' && needs.route.outputs.run_code_checks == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - uses: actions/setup-go@v6.5.0
         with:
           go-version-file: go.mod
       - name: Install Subc
         env:
           GOTOOLCHAIN: auto
         run: go install github.com/arran4/go-subcommand/cmd/gosubc@latest
-      - name: Run checks
-        run: |
-          go fix ./...
-          go fmt ./...
-
+      - name: Run go fmt
+        run: go fmt ./...
       - name: Check for uncommitted changes
         run: |
           if [ -n "$(git status --porcelain)" ]; then
-            echo "Uncommitted changes found. Please run go fix and go fmt locally."
+            echo "Uncommitted changes found. Please run go fmt locally."
+            git diff
+            exit 1
+          fi
+
+  go-generate:
+    name: Go Generate Check
+    needs: [route, discover]
+    if: ${{ github.event_name == 'workflow_dispatch' && needs.discover.outputs.has_go == 'true' && needs.route.outputs.run_code_checks == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - uses: actions/setup-go@v6.5.0
+        with:
+          go-version-file: go.mod
+
+# Disabled because it was modifying go.mod / go.sum need to install it without
+#      - name: Install Subc
+#        env:
+#          GOTOOLCHAIN: auto
+#        run: go install github.com/arran4/go-subcommand/cmd/gosubc@latest
+#      - name: Run gosubc generate
+#        run: gosubc generate ./cmd/diff
+#      - name: Check for uncommitted changes
+#        run: |
+#          if [ -n "$(git status --porcelain)" ]; then
+#            echo "Uncommitted changes found. Please run gosubc generate locally."
+#            git diff
+#            exit 1
+#          fi
+
+  go-fix:
+    name: Go Fix Check
+    needs: [route, discover]
+    if: ${{ needs.discover.outputs.has_go == 'true' && needs.route.outputs.run_code_checks == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7.0.0
+      - uses: actions/setup-go@v6.5.0
+        with:
+          go-version-file: go.mod
+      - name: Run go fix
+        run: go fix ./...
+      - name: Check for uncommitted changes
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Uncommitted changes found. Please run go fix locally."
             git diff
             exit 1
           fi
@@ -396,8 +454,8 @@ jobs:
     if: ${{ needs.discover.outputs.has_go == 'true' && github.event_name == 'workflow_dispatch' && inputs.mode == 'lint-fix' && inputs.allow_prs == true }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
-      - uses: actions/setup-go@v6
+      - uses: actions/checkout@v7.0.0
+      - uses: actions/setup-go@v6.5.0
         with:
           go-version-file: go.mod
       - name: Install Subc
@@ -430,11 +488,11 @@ jobs:
     if: ${{ github.event_name == 'workflow_dispatch' && inputs.mode == 'lint-fix' && inputs.allow_prs == true }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7.0.0
 
       - name: Setup Go (if needed)
         if: ${{ needs.discover.outputs.has_go == 'true' }}
-        uses: actions/setup-go@v6
+        uses: actions/setup-go@v6.5.0
         with:
           go-version-file: go.mod
 
@@ -504,7 +562,7 @@ jobs:
     if: ${{ needs.route.outputs.run_cleanup == 'true' }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7.0.0
       - env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PARENT_PR: ${{ github.event.pull_request.number }}
@@ -524,10 +582,10 @@ jobs:
     if: ${{ needs.discover.outputs.has_go == 'true' && needs.discover.outputs.has_goreleaser == 'true' && (((github.event_name == 'push') && startsWith(github.ref, 'refs/tags/v')) || (github.event_name == 'workflow_dispatch' && startsWith(inputs.mode, 'release-'))) }}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7.0.0
         with:
           fetch-depth: 0
-      - uses: actions/setup-go@v6
+      - uses: actions/setup-go@v6.5.0
         with:
           go-version-file: go.mod
       - name: Tag commit for release (workflow_dispatch)
